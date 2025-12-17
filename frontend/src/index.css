@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+:root {
+  --bg-clr: hsl(0, 0%, 0%);
+  --text-clr: hsl(0, 0%, 100%);
+}
+
+* {
+  font-family: "Inter", sans-serif;
+  transition: 0.3s;
+}
+
+body {
+  background-color: var(--bg-clr);
+  color: var(--text-clr);
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--text-clr);
+  color: var(--bg-clr);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text);
+}
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background-color: var(--color-bg);
+}
+
+summary::webkit-details-marker {
+  display: none;
+}
+
+summary::marker {
+  content: "";
+}
+
+button {
+  cursor: pointer;
+}
+
+input {
+  outline: none;
+}
