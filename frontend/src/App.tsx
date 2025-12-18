@@ -1,9 +1,11 @@
 import type { JSX } from "react";
 import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 
 type AppProps = {};
@@ -22,10 +24,20 @@ const App = ({}: AppProps) => {
       path: "/register",
       element: <Register />,
     },
+    {
+      path: "/profile",
+      element: <Profile />,
+    },
   ];
 
   return (
     <>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        pauseOnHover
+        theme="dark"
+      />
       <Header />
       <main className="min-h-screen">
         <Routes>

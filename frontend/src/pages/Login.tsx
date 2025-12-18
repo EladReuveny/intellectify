@@ -1,20 +1,52 @@
-import { Lock, Mail } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Lock, LogIn, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { handleError } from "../utils/utils";
+
+import { toast } from "react-toastify";
+import { loginUser } from "../api/authApi";
+import { useAuth } from "../hooks/useAuth";
+import type { LoginUser } from "../types/user";
 
 type LoginProps = {};
 
 const Login = ({}: LoginProps) => {
+  const { login } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const loginUserVar: LoginUser = {
+      email,
+      password,
+    };
+
+    try {
+      const data = await loginUser(loginUserVar);
+      login(data);
+      toast.success("Sign in successfully");
+      navigate("/profile");
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
   return (
     <section className="px-2 text-center flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold mb-2">Welcome back to Intellctify</h1>
-      <p className="text-gray-400">
-        Sign in to access your account
-      </p>
+      <p className="text-gray-400">Sign in to access your account</p>
 
-      <form className="w-1/2">
+      <form onSubmit={(e) => handleLogin(e)} className="w-1/2">
         <div className="space-y-3 mt-4">
           <div className="relative">
-            <Mail className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"/>
+            <Mail className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
             <input
               type="email"
               id="email"
@@ -34,7 +66,7 @@ const Login = ({}: LoginProps) => {
           </div>
 
           <div className="relative">
-            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"/>
+            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
             <input
               type="password"
               id="password"
@@ -74,8 +106,9 @@ const Login = ({}: LoginProps) => {
 
         <button
           type="submit"
-          className="mb-3 bg-(--text-clr) text-(--bg-clr) py-2 rounded-md w-full hover:brightness-90"
+          className="mt-2 bg-(--text-clr) text-(--bg-clr) py-2 rounded-md w-full flex items-center justify-center gap-2 text-xl hover:brightness-90"
         >
+          <LogIn className="w-5 h-5" />
           Login
         </button>
       </form>

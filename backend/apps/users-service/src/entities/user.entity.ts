@@ -26,7 +26,10 @@ export class User {
   })
   role: Role;
 
-  //   @Column()
-  //   @OneToMany(() => Article, (article) => article.author)
-  //   articles: Article[];
+  @Column({ type: 'text', nullable: true })
+  avatarUrl?: string;
+
+  // @Column()
+  // @OneToMany(() => Post, (post) => post.author)
+  // posts: Post[];
 }

@@ -76,6 +76,9 @@ export class UsersServiceService {
     if (updateUserDto.password) {
       user.password = await this.hashPassword(updateUserDto.password);
     }
+    if (updateUserDto.avatarUrl) {
+      user.avatarUrl = updateUserDto.avatarUrl;
+    }
 
     return await this.usersRepository.save(user);
   }
