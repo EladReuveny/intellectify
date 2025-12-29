@@ -17,3 +17,10 @@ export type Role = "user" | "admin";
 export type LoginUser = Pick<User, "email" | "password">;
 
 export type CreateUser = Pick<User, "email" | "password">;
+
+export type UpdateUser = Partial<CreateUser> & {
+  currentPassword?: string;
+  newPassword?: string;
+  confirmNewPassword?: string;
+  avatarUrl?: string;
+};

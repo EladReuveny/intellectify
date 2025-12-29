@@ -31,7 +31,9 @@ export class UsersServiceService {
   }
 
   async findOne(id: number) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
 
     if (!user) {
       throw new RpcException({
@@ -63,24 +65,69 @@ export class UsersServiceService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
 
+    await this.handleEmailUpdate(updateUserDto, user);
+
+    await this.handlePasswordUpdate(updateUserDto, user);
+
+    this.handleAvatarUrlUpdate(updateUserDto, user);
+
+    return await this.usersRepository.save(user);
+  }
+
+  private async handleEmailUpdate(updateUserDto: UpdateUserDto, user: User) {
     if (updateUserDto.email) {
       const isEmailExist = await this.isEmailExist(updateUserDto.email);
+
       if (isEmailExist) {
         throw new RpcException({
           statusCode: HttpStatus.CONFLICT,
           message: `Email ${updateUserDto.email} already exists. Please try again`,
         });
       }
+
       user.email = updateUserDto.email;
     }
-    if (updateUserDto.password) {
-      user.password = await this.hashPassword(updateUserDto.password);
+  }
+
+  private async handlePasswordUpdate(updateUserDto: UpdateUserDto, user: User) {
+    if (
+      (updateUserDto.currentPassword ||
+        updateUserDto.newPassword ||
+        updateUserDto.confirmNewPassword) &&
+      (!updateUserDto.currentPassword ||
+        !updateUserDto.newPassword ||
+        !updateUserDto.confirmNewPassword)
+    ) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message:
+          'Current password, new password and confirm password must be provided together',
+      });
+    } else if (updateUserDto.newPassword !== updateUserDto.confirmNewPassword) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'New password and confirm password must be matched',
+      });
+    } else {
+      try {
+        await this.comparePassword(
+          updateUserDto.currentPassword!,
+          user.password,
+        );
+        user.password = await this.hashPassword(updateUserDto.newPassword!);
+      } catch (err) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Current password is incorrect',
+        });
+      }
     }
+  }
+
+  private handleAvatarUrlUpdate(updateUserDto: UpdateUserDto, user: User) {
     if (updateUserDto.avatarUrl) {
       user.avatarUrl = updateUserDto.avatarUrl;
     }
-
-    return await this.usersRepository.save(user);
   }
 
   async remove(id: number) {

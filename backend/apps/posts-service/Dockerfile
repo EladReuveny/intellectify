@@ -1,0 +1,17 @@
+FROM node:22.17.1-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3003
+
+CMD ["npm", "run", "start:posts:dev"]

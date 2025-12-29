@@ -1,14 +1,17 @@
 import { Lock, LogIn, Mail } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { registerUser } from "../api/authApi";
-import { useAuth } from "../hooks/useAuth";
-import type { CreateUser } from "../types/user";
+import { registerUser } from "../api/auth.api";
+import PasswordToggleButton from "../components/PasswordToggleButton";
+import { useAuth } from "../hooks/useAuth.hook";
 import { handleError } from "../utils/utils";
 
 type RegisterProps = {};
 
 const Register = ({}: RegisterProps) => {
+  const [isShowPassword, setIsShowPassword] = useState(false);
+
   const { login } = useAuth();
 
   const navigate = useNavigate();
@@ -22,13 +25,8 @@ const Register = ({}: RegisterProps) => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const createUser: CreateUser = {
-      email,
-      password,
-    };
-
     try {
-      const data = await registerUser(createUser);
+      const data = await registerUser({ email, password });
       login(data);
       toast.success("Sign up successfully");
       navigate("/profile");
@@ -69,7 +67,7 @@ const Register = ({}: RegisterProps) => {
           <div className="relative">
             <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
             <input
-              type="password"
+              type={isShowPassword ? "text" : "password"}
               id="password"
               name="password"
               placeholder=""
@@ -84,6 +82,10 @@ const Register = ({}: RegisterProps) => {
             >
               Password
             </label>
+            <PasswordToggleButton
+              isVisible={isShowPassword}
+              onToggle={() => setIsShowPassword((prev) => !prev)}
+            />
           </div>
         </div>
 
@@ -103,7 +105,7 @@ const Register = ({}: RegisterProps) => {
           type="submit"
           className="mt-2 bg-(--text-clr) text-(--bg-clr) py-2 rounded-md w-full flex items-center justify-center gap-2 text-xl hover:brightness-90"
         >
-          <LogIn className="w-5 h-5" />
+          <LogIn size={28} />
           Register
         </button>
       </form>

@@ -40,10 +40,16 @@ export class JwtGuard implements CanActivate {
       );
     }
 
-    const payload = this.jwtService.verify<JwtPayload>(token, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-    });
-    req['user'] = payload;
+    try {
+      const payload = this.jwtService.verify<JwtPayload>(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
+      req['user'] = payload;
+    } catch (err: unknown) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please log in again.',
+      );
+    }
 
     return true;
   }

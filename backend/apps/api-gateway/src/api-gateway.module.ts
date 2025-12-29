@@ -1,14 +1,19 @@
-import { Microservice, Queue } from '@app/common/constants/constants';
+import { Microservice } from '@app/common/constants/microservices';
+import { Queue } from '@app/common/constants/queues';
 import { JwtGuard } from '@app/common/guards/jwt.guard';
+import { RolesGuard } from '@app/common/guards/roles.guard';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+import { BookmarksController } from './posts/bookmarks.controller';
+import { BookmarksService } from './posts/bookmarks.service';
+import { PostsController } from './posts/posts.controller';
+import { PostsService } from './posts/posts.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
-import { RolesGuard } from '@app/common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -28,7 +33,7 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
     }),
     ClientsModule.registerAsync([
       {
-        name: Microservice.USERS_SERVICE,
+        name: Microservice.USERS,
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: async (configService: ConfigService) => ({
@@ -38,13 +43,13 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
               configService.get<string>('RABBITMQ_URL') ??
                 'amqp://localhost:5672',
             ],
-            queue: Queue.USERS_QUEUE,
+            queue: Queue.USERS,
             queueOptions: { durable: false },
           },
         }),
       },
       {
-        name: Microservice.AUTH_SERVICE,
+        name: Microservice.AUTH,
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: async (configService: ConfigService) => ({
@@ -54,14 +59,35 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
               configService.get<string>('RABBITMQ_URL') ??
                 'amqp://localhost:5672',
             ],
-            queue: Queue.AUTH_QUEUE,
+            queue: Queue.AUTH,
+            queueOptions: { durable: false },
+          },
+        }),
+      },
+      {
+        name: Microservice.POSTS,
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [
+              configService.get<string>('RABBITMQ_URL') ??
+                'amqp://localhost:5672',
+            ],
+            queue: Queue.POSTS,
             queueOptions: { durable: false },
           },
         }),
       },
     ]),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [
+    UsersController,
+    AuthController,
+    PostsController,
+    BookmarksController,
+  ],
   providers: [
     {
       provide: 'APP_GUARD',
@@ -69,10 +95,12 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
     },
     {
       provide: 'APP_GUARD',
-      useClass: RolesGuard
+      useClass: RolesGuard,
     },
     UsersService,
     AuthService,
+    PostsService,
+    BookmarksService,
   ],
 })
 export class ApiGatewayModule {}

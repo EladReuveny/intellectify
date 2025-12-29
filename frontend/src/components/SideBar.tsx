@@ -1,7 +1,7 @@
 import {
   ArrowRight,
+  Bookmark,
   ChartNoAxesCombined,
-  Clock4,
   Library,
   MenuIcon,
   Newspaper,
@@ -9,38 +9,45 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, type RefObject } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.hook";
 import Logo from "./Logo";
 
 type SideBarProps = {
-  sideBarDialog: RefObject<HTMLDialogElement | null>;
+  dialogRef: RefObject<HTMLDialogElement | null>;
 };
 
-const SideBar = ({ sideBarDialog }: SideBarProps) => {
+const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
+  const { auth } = useAuth();
+  const userId = auth?.user.id;
+
+  const location = useLocation();
+
   useEffect(() => {
     const handleDialogOutsideClick = (e: MouseEvent) => {
-      const isBackGroundClicked = sideBarDialog.current === e.target;
+      const isBackGroundClicked = dialogRef.current === e.target;
       if (isBackGroundClicked) {
-        sideBarDialog?.current?.close();
+        closeSideBarDialog();
       }
     };
 
-    sideBarDialog.current?.addEventListener("click", handleDialogOutsideClick);
+    document.addEventListener("click", handleDialogOutsideClick);
 
     return () =>
-      sideBarDialog.current?.removeEventListener(
-        "click",
-        handleDialogOutsideClick
-      );
+      document.removeEventListener("click", handleDialogOutsideClick);
   }, []);
 
+  useEffect(() => {
+    closeSideBarDialog();
+  }, [location]);
+
   const closeSideBarDialog = () => {
-    sideBarDialog.current?.close();
+    dialogRef.current?.close();
   };
 
   return (
     <dialog
-      ref={sideBarDialog}
+      ref={dialogRef}
       className="absolute top-0 left-0 w-1/3 h-screen overflow-y-auto p-4 
       backdrop:backdrop-brightness-50 backdrop:backdrop-blur bg-(--bg-clr) text-(--text-clr)
       -translate-x-full opacity-0 transition-all duration-300 ease-in-out
@@ -79,7 +86,7 @@ const SideBar = ({ sideBarDialog }: SideBarProps) => {
 
           <ul className="space-y-2">
             <NavLink
-              to="/read-later"
+              to={`/users/${userId}/bookmarks`}
               className={({ isActive }) =>
                 `flex items-center gap-4 py-1 px-3.5 rounded-md ${
                   isActive
@@ -88,11 +95,11 @@ const SideBar = ({ sideBarDialog }: SideBarProps) => {
                 }`
               }
             >
-              <Clock4 /> Read Later
+              <Bookmark /> Bookmarks
             </NavLink>
 
             <NavLink
-              to="/liked"
+              to={`/users/${userId}/liked-posts`}
               className={({ isActive }) =>
                 `flex items-center gap-4 py-1 px-3.5 rounded-md ${
                   isActive
@@ -101,11 +108,11 @@ const SideBar = ({ sideBarDialog }: SideBarProps) => {
                 }`
               }
             >
-              <ThumbsUp /> Liked Articles
+              <ThumbsUp /> Liked Posts
             </NavLink>
 
             <NavLink
-              to="/my-articles"
+              to={`users/${userId}/posts`}
               className={({ isActive }) =>
                 `flex items-center gap-4 py-1 px-3.5 rounded-md ${
                   isActive
@@ -114,7 +121,7 @@ const SideBar = ({ sideBarDialog }: SideBarProps) => {
                 }`
               }
             >
-              <Newspaper /> My Articles
+              <Newspaper /> My Posts
             </NavLink>
 
             <NavLink

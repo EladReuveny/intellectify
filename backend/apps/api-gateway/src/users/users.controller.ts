@@ -7,7 +7,7 @@ import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  
+
   @Get()
   @Roles(Role.ADMIN)
   findAll() {
@@ -27,5 +27,20 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
+  }
+
+  @Get(':userId/posts')
+  findUserPosts(@Param('userId') userId: number) {
+    return this.usersService.findUserPosts(userId);
+  }
+
+  @Get(':userId/liked-posts')
+  findUserLikedPosts(@Param('userId') userId: number) {
+    return this.usersService.findUserLikedPosts(userId);
+  }
+
+  @Get(':userId/bookmarks')
+  findUserBookmarks(@Param('userId') userId: number) {
+    return this.usersService.findUserBookmarks(userId);
   }
 }

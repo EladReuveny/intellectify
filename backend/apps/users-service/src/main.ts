@@ -1,4 +1,4 @@
-import { Queue } from '@app/common/constants/constants';
+import { Queue } from '@app/common/constants/queues';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -13,7 +13,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [rabbitmqUrl],
-        queue: Queue.USERS_QUEUE,
+        queue: Queue.USERS,
         queueOptions: { durable: false },
       },
     },

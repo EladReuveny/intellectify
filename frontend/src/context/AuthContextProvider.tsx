@@ -1,5 +1,8 @@
 import React, { createContext, useEffect, useState } from "react";
-import type { AuthResponse, AuthResponseData } from "../types/authResponse";
+import type {
+  AuthResponse,
+  AuthResponseData,
+} from "../types/auth-response.types";
 
 type AuthContextType = {
   auth: AuthResponseData | null;

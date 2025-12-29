@@ -1,4 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from '../enums/role.enum';
 
 @Entity('users')
@@ -12,11 +17,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    update: false,
-  })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
   @Column({
@@ -28,8 +29,4 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   avatarUrl?: string;
-
-  // @Column()
-  // @OneToMany(() => Post, (post) => post.author)
-  // posts: Post[];
 }
