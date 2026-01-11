@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import LikedPosts from "./pages/LikedPosts";
 import Login from "./pages/Login";
 import PostDetails from "./pages/PostDetails";
+import PostsPage from "./pages/PostsPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import UserBookmarks from "./pages/UserBookmarks";
@@ -34,25 +35,26 @@ const App = ({}: AppProps) => {
       element: <Profile />,
     },
     {
-      path: "users/:userId/posts",
+      path: "/users/:userId/posts",
       element: <UserPosts />,
     },
     {
-      path: "posts/:postId",
+      path: "/posts/:postId",
       element: <PostDetails />,
     },
     {
-      path: "users/:userId/liked-posts",
+      path: "/users/:userId/liked-posts",
       element: <LikedPosts />,
     },
     {
-      path: "users/:userId/bookmarks",
+      path: "/users/:userId/bookmarks",
       element: <UserBookmarks />,
     },
     {
-      path: "users/:userId/bookmarks/:bookmarkId",
+      path: "/users/:userId/bookmarks/:bookmarkId",
       element: <BookmarkDetails />,
     },
+    { path: "/posts", element: <PostsPage /> },
   ];
 
   return (

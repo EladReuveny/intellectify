@@ -1,8 +1,8 @@
 import { PostsPattern } from '@app/common/constants/patterns/posts.pattern';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreatePostDto } from './dtos/create-post.dto';
-import { UpdatePostDto } from './dtos/update-post.dto';
+import { CreatePostDto } from '../dtos/create-post.dto';
+import { UpdatePostDto } from '../dtos/update-post.dto';
 import { PostsServiceService } from './posts-service.service';
 
 @Controller()

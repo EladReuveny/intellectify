@@ -16,6 +16,9 @@ export const PostsPattern = {
     FIND_USER_BOOKMARKED_POSTS: {
       cmd: 'posts.findUserBookmarks',
     },
+    CREATE_POST_COMMENT: { cmd: 'posts.createPostComment' },
+    FIND_ALL_COMMENTS: { cmd: 'posts.findAllComments' },
+    TOGGLE_LIKE_COMMENT: { cmd: 'posts.toggleLikeComment' },
   },
   events: {},
 } as const;

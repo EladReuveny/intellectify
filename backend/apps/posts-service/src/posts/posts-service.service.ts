@@ -5,11 +5,11 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
-import { CreatePostDto } from './dtos/create-post.dto';
-import { UpdatePostDto } from './dtos/update-post.dto';
+import { CreatePostDto } from '../dtos/create-post.dto';
+import { UpdatePostDto } from '../dtos/update-post.dto';
 
-import { Like } from './entities/like.entity';
-import { Post } from './entities/post.entity';
+import { Like } from '../entities/like.entity';
+import { Post } from '../entities/post.entity';
 
 @Injectable()
 export class PostsServiceService {

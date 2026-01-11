@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { findPost, toggleLikePost } from "../api/posts.api";
 import PageTitle from "../components/PageTitle";
+import PostComments from "../components/PostComments";
 import { useAuth } from "../hooks/useAuth.hook";
 import type { Post } from "../types/post.types";
 import { handleError } from "../utils/utils";
@@ -70,15 +71,23 @@ const PostDetails = ({}: PostsDetailsProps) => {
                 year: "numeric",
               })}
           </div>
-          <button
-            type="button"
-            onClick={handleToggleLikePost}
-            title={isUserLikedPost ? "Unlike" : "Like"}
-            className={`flex items-center gap-1 text-sm 
-              ${isUserLikedPost ? "fill-(--text-clr)" : "text-gray-400"}  hover:text-(--text-clr)`}
-          >
-            <ThumbsUp size={20} fill="" /> {post?.likes.length}
-          </button>
+          <div className="flex items-center gap-1 text-sm text-gray-400">
+            <button
+              type="button"
+              onClick={handleToggleLikePost}
+              title={isUserLikedPost ? "Unlike" : "Like"}
+            >
+              <ThumbsUp
+                size={20}
+                className={`${
+                  isUserLikedPost
+                    ? "fill-(--text-clr) stroke-1"
+                    : "hover:stroke-(--text-clr)"
+                } hover:scale-105`}
+              />{" "}
+            </button>
+            {post?.likes.length}
+          </div>
         </div>
 
         <img
@@ -90,6 +99,10 @@ const PostDetails = ({}: PostsDetailsProps) => {
 
         <p>{post?.content}</p>
       </main>
+
+      <hr className="text-(--text-clr)/35 my-4" />
+
+      {post && <PostComments post={post} />}
     </article>
   );
 };

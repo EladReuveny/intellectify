@@ -11,6 +11,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { CreateCommentDto } from 'apps/posts-service/src/comments/dtos/create-post-comment.dto';
 import { CreatePostDto } from 'apps/posts-service/src/dtos/create-post.dto';
 import { UpdatePostDto } from 'apps/posts-service/src/dtos/update-post.dto';
 import { PostsService } from './posts.service';
@@ -53,5 +54,27 @@ export class PostsController {
     @Param('postId') postId: number,
   ) {
     return this.postsService.toggleLikePost(userId, postId);
+  }
+
+  @Post(':postId/comments')
+  createPostComment(
+    @Param('postId') postId: number,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return this.postsService.createPostComment(postId, createCommentDto);
+  }
+
+  @Get(':postId/comments')
+  findAllComments(@Param('postId') postId: number) {
+    return this.postsService.findAllComments(postId);
+  }
+
+  @Post(':postId/comments/:commentId/likes')
+  toggleLikeComment(
+    @GetUser('sub') userId: number,
+    @Param('postId') postId: number,
+    @Param('commentId') commentId: number,
+  ) {
+    return this.postsService.toggleLikeComment(userId, postId, commentId);
   }
 }

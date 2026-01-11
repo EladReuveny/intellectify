@@ -14,7 +14,7 @@ const Home = ({}: HomeProps) => {
         you read, write and deepen your understanding of various topics.
       </p>
       <Link
-        to="/login"
+        to="/posts"
         className="group inline-flex items-center gap-1 py-2 px-6 bg-(--text-clr) text-(--bg-clr) rounded mt-4 border hover:bg-(--bg-clr) hover:text-(--text-clr)"
       >
         Get Started <SliddingDashArrowIcon />

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Bookmark } from '../bookmarks/entities/bookmark.entity';
+import { PostComment } from '../comments/entities/post-comment.entity';
 import { Like } from './like.entity';
 
 @Entity('posts')
@@ -34,4 +35,7 @@ export class Post {
 
   @ManyToMany(() => Bookmark, (bookmarks) => bookmarks.posts)
   bookmarks: Bookmark[];
+
+  @OneToMany(() => PostComment, (comment) => comment.post)
+  comments: PostComment[];
 }

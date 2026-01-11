@@ -2,7 +2,7 @@ import { Queue } from '@app/common/constants/queues';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { PostsServiceModule } from './posts-service.module';
+import { PostsServiceModule } from './posts/posts-service.module';
 async function bootstrap() {
   const configService = new ConfigService();
   const rabbitmqUrl =

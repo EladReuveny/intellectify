@@ -1,3 +1,4 @@
+import type { CreatePostCommentDto, PostComment } from "../types/post-comment";
 import type { CreatePostDto, Post, UpdatePostDto } from "../types/post.types";
 import { api } from "./api.config";
 
@@ -38,5 +39,33 @@ export const removePost = async (postId: number): Promise<void> => {
 
 export const toggleLikePost = async (postId: number): Promise<Post> => {
   const { data } = await api.post(`/${PREFIX_RESOURCE}/${postId}/likes`);
+  return data;
+};
+
+export const createPostComment = async (
+  postId: number,
+  createPostCommentDto: CreatePostCommentDto
+): Promise<PostComment> => {
+  const { data } = await api.post(
+    `/${PREFIX_RESOURCE}/${postId}/comments`,
+    createPostCommentDto
+  );
+  return data;
+};
+
+export const findAllPostComments = async (
+  postId: number
+): Promise<PostComment[]> => {
+  const { data } = await api.get(`/${PREFIX_RESOURCE}/${postId}/comments`);
+  return data;
+};
+
+export const toggleLikeComment = async (
+  postId: number,
+  commentId: number
+): Promise<PostComment> => {
+  const { data } = await api.post(
+    `/${PREFIX_RESOURCE}/${postId}/comments/${commentId}/likes`
+  );
   return data;
 };

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PostsServiceService } from '../posts-service.service';
 import { PostsServiceController } from './posts-service.controller';
-import { PostsServiceService } from './posts-service.service';
 
 describe('PostsServiceController', () => {
   let postsServiceController: PostsServiceController;
@@ -11,7 +11,9 @@ describe('PostsServiceController', () => {
       providers: [PostsServiceService],
     }).compile();
 
-    postsServiceController = app.get<PostsServiceController>(PostsServiceController);
+    postsServiceController = app.get<PostsServiceController>(
+      PostsServiceController,
+    );
   });
 
   describe('root', () => {

@@ -6,10 +6,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BookmarksServiceModule } from './bookmarks/bookmarks-service.module';
-import { Bookmark } from './bookmarks/entities/bookmark.entity';
-import { Like } from './entities/like.entity';
-import { Post } from './entities/post.entity';
+import { BookmarksServiceModule } from '../bookmarks/bookmarks-service.module';
+import { Bookmark } from '../bookmarks/entities/bookmark.entity';
+import { PostComment } from '../comments/entities/post-comment.entity';
+import { PostCommentsServiceModule } from '../comments/post-comments-service.module';
+import { Like } from '../entities/like.entity';
+import { Post } from '../entities/post.entity';
 import { PostsServiceController } from './posts-service.controller';
 import { PostsServiceService } from './posts-service.service';
 
@@ -24,7 +26,7 @@ import { PostsServiceService } from './posts-service.service';
       inject: [ConfigService],
       useFactory: typeormConfig,
     }),
-    TypeOrmModule.forFeature([Post, Like, Bookmark]),
+    TypeOrmModule.forFeature([Post, Like, Bookmark, PostComment]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,6 +56,7 @@ import { PostsServiceService } from './posts-service.service';
       },
     ]),
     forwardRef(() => BookmarksServiceModule),
+    forwardRef(() => PostCommentsServiceModule),
   ],
   controllers: [PostsServiceController],
   providers: [PostsServiceService],
