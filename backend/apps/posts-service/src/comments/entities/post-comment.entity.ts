@@ -31,10 +31,14 @@ export class PostComment {
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @Column({ nullable: true })
-  commentsParentId?: number;
+  @ManyToOne(() => PostComment, (commentParent) => commentParent.replies, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'comment_parent_id' })
+  commentParent?: PostComment;
 
-  @OneToMany(() => PostComment, (reply) => reply.commentsParentId, {
+  @OneToMany(() => PostComment, (reply) => reply.commentParent, {
     nullable: true,
   })
   replies?: PostComment[];

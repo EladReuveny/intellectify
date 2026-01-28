@@ -1,3 +1,4 @@
+import type { Bookmark } from "./bookmark.types";
 import type { Like } from "./like.types";
 
 export type Post = {
@@ -8,6 +9,8 @@ export type Post = {
   imageUrl?: string;
   authorId: number;
   likes: Like[];
+  bookmarks: Bookmark[];
+  comments: Comment[];
 };
 
 export type CreatePostDto = {

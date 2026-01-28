@@ -8,13 +8,11 @@ export type PostComment = {
   userId: number;
   likes: Like[];
   post: Post;
-  commentsParentId?: number;
+  commentParent?: PostComment;
   replies?: PostComment[];
 };
 
 export type CreatePostCommentDto = {
   content: string;
-  userId: number;
-  postId: number;
-  commentsParentId?: number;
+  commentParentId?: number;
 };

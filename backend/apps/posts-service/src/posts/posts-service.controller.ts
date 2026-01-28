@@ -1,4 +1,5 @@
 import { PostsPattern } from '@app/common/constants/patterns/posts.pattern';
+import { PostsQueryDto } from '@app/common/dtos/query/posts-query.dto';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreatePostDto } from '../dtos/create-post.dto';
@@ -15,8 +16,8 @@ export class PostsServiceController {
   }
 
   @MessagePattern(PostsPattern.commands.FIND_ALL)
-  async findAll() {
-    return await this.postsServiceService.findAll();
+  async findAll(query: PostsQueryDto) {
+    return await this.postsServiceService.findAll(query);
   }
 
   @MessagePattern(PostsPattern.commands.FIND_ONE)

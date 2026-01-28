@@ -14,14 +14,17 @@ export class PostCommentsServiceController {
   createPostComment(
     @Payload()
     {
+      userId,
       postId,
       createCommentDto,
     }: {
+      userId: number;
       postId: number;
       createCommentDto: CreateCommentDto;
     },
   ) {
     return this.postCommentsServiceService.createPostComment(
+      userId,
       postId,
       createCommentDto,
     );

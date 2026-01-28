@@ -22,6 +22,7 @@ export class PostCommentsServiceService {
       where: { id: commentId },
       relations: {
         likes: true,
+        replies: true,
       },
     });
 
@@ -35,12 +36,23 @@ export class PostCommentsServiceService {
     return comment;
   }
 
-  async createPostComment(postId: number, createCommentDto: CreateCommentDto) {
+  async createPostComment(
+    userId: number,
+    postId: number,
+    createCommentDto: CreateCommentDto,
+  ) {
     const post = await this.postsServiceService.findOne(postId);
+
+    let commentParent: PostComment | undefined = undefined;
+    if (createCommentDto.commentParentId) {
+      commentParent = await this.findOne(createCommentDto.commentParentId);
+    }
 
     const newComment = this.postCommentsRepository.create({
       ...createCommentDto,
+      userId,
       post,
+      commentParent,
     });
 
     return this.postCommentsRepository.save(newComment);
@@ -54,6 +66,11 @@ export class PostCommentsServiceService {
       },
       relations: {
         likes: true,
+        replies: true,
+        commentParent: true,
+      },
+      order: {
+        createdAt: 'ASC',
       },
     });
   }

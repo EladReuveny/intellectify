@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import UserBookmarks from "./pages/UserBookmarks";
 import UserPosts from "./pages/UserPosts";
+import UserStats from "./pages/UserStats";
 
 type AppProps = {};
 
@@ -55,6 +56,10 @@ const App = ({}: AppProps) => {
       element: <BookmarkDetails />,
     },
     { path: "/posts", element: <PostsPage /> },
+    {
+      path: "/users/:userId/stats",
+      element: <UserStats />,
+    },
   ];
 
   return (
@@ -68,8 +73,8 @@ const App = ({}: AppProps) => {
       <Header />
       <main className="min-h-screen mt-20">
         <Routes>
-          {routes.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
+          {routes.map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
           ))}
         </Routes>
       </main>

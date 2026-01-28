@@ -1,5 +1,6 @@
 import { Microservice } from '@app/common/constants/microservices';
 import { PostsPattern } from '@app/common/constants/patterns/posts.pattern';
+import { PostsQueryDto } from '@app/common/dtos/query/posts-query.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateCommentDto } from 'apps/posts-service/src/comments/dtos/create-post-comment.dto';
@@ -17,8 +18,8 @@ export class PostsService {
     return this.postsClient.send(PostsPattern.commands.CREATE, createPostDto);
   }
 
-  findAll() {
-    return this.postsClient.send(PostsPattern.commands.FIND_ALL, {});
+  findAll(query: PostsQueryDto) {
+    return this.postsClient.send(PostsPattern.commands.FIND_ALL, query);
   }
 
   findOne(postId: number) {
@@ -45,8 +46,13 @@ export class PostsService {
     });
   }
 
-  createPostComment(postId: number, createCommentDto: CreateCommentDto) {
+  createPostComment(
+    userId: number,
+    postId: number,
+    createCommentDto: CreateCommentDto,
+  ) {
     return this.postsClient.send(PostsPattern.commands.CREATE_POST_COMMENT, {
+      userId,
       postId,
       createCommentDto,
     });

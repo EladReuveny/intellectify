@@ -1,5 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { createPostComment, findAllPostComments } from "../api/posts.api";
 import { useAuth } from "../hooks/useAuth.hook";
 import type { PostComment } from "../types/post-comment";
@@ -14,6 +16,8 @@ const PostComments = ({ post }: PostCommentsProps) => {
 
   const { auth } = useAuth();
   const user = auth?.user;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllPostComments = async () => {
@@ -31,14 +35,18 @@ const PostComments = ({ post }: PostCommentsProps) => {
   const handlePostNewComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user) {
+      toast.info("Please sign in first to comment on a post");
+      navigate("/login");
+      return;
+    }
+
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
     try {
       const data = await createPostComment(post.id, {
         content: formData.get("new-comment") as string,
-        userId: user?.id!,
-        postId: post.id,
       });
       setComments((prev) => [...prev, data]);
     } catch (err) {
@@ -58,7 +66,7 @@ const PostComments = ({ post }: PostCommentsProps) => {
           id="new-comment"
           required
           placeholder="Write a comment here..."
-          className="outline-none resize-y mb-1 p-2 w-full border border-gray-400 rounded hover:border-(--text-color) focus:border-(--text-color)"
+          className="outline-none resize-y mb-1 p-2 w-full border border-gray-400 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
         ></textarea>
         <button
           type="submit"
@@ -68,7 +76,13 @@ const PostComments = ({ post }: PostCommentsProps) => {
         </button>
       </form>
 
-      <CommentsList comments={comments} setComments={setComments} />
+      {comments.length ? (
+        <CommentsList comments={comments} setComments={setComments} />
+      ) : (
+        <p className="text-gray-400 text-center">
+          No comments yet. Be the first to comment!
+        </p>
+      )}
     </div>
   );
 };

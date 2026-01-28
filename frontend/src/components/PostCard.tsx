@@ -8,11 +8,12 @@ import {
   Trash,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { removePostFromBookmark } from "../api/bookmarks.api";
 import { removePost } from "../api/posts.api";
+import { useAuth } from "../hooks/useAuth.hook";
 import {
   bookmarkAtom,
   postIdToAddToBookmarkAtom,
@@ -45,6 +46,11 @@ const PostCard = ({
   const addToBookmarkDialogRef = useRef<HTMLDialogElement | null>(null);
   const removePostDialogRef = useRef<HTMLDialogElement | null>(null);
 
+  const { auth } = useAuth();
+  const user = auth?.user;
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleOutSideClick = (e: MouseEvent) => {
       if (
@@ -76,6 +82,12 @@ const PostCard = ({
   };
 
   const openAddPostToBookmarkDialog = () => {
+    if (!user) {
+      navigate("/login");
+      toast.info("Please sign in first to access your bookmarks");
+      return;
+    }
+
     setPostIdToAddToBookmark(post.id);
     addToBookmarkDialogRef.current?.showModal();
   };
@@ -113,25 +125,24 @@ const PostCard = ({
       <Link
         to={`/posts/${post.id}`}
         key={post.id}
-        className="relative rounded-md border border-gray-400 shadow-lg flex flex-col md:flex-row items-center gap-4 p-2 hover:bg-(--text-clr)/15"
+        className="relative group rounded-lg border border-(--text-clr)/35 shadow-lg px-2 flex flex-col md:flex-row gap-4 hover:bg-(--text-clr)/15"
       >
-        <span className="text-xs text-gray-400">{index + 1}</span>
+        <span className="text-xs text-gray-400 self-center">{index + 1}</span>
 
         <img
           src={post.imageUrl || undefined}
           alt={`${post.title}'s image`}
-          className="w-full md:w-64 object-contain rounded-md"
+          className="w-full md:w-64 aspect-video rounded-lg group-hover:scale-105"
         />
 
-        <div className="w-full">
+        <div className="w-full flex flex-col justify-between py-2">
           <h2 className="text-2xl font-bold">{post.title}</h2>
-          <p className="text-gray-400">{post.content?.slice(0, 100)}...</p>
 
           <div className="mt-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div
                 title="Created at"
-                className="flex items-center gap-1 text-sm text-gray-400 hover:text-(--text-clr)"
+                className="flex items-center gap-1 text-sm text-gray-400"
               >
                 <Calendar size={20} />{" "}
                 {new Date(post.createdAt).toLocaleDateString("en-US", {
@@ -142,7 +153,7 @@ const PostCard = ({
               </div>
               <div
                 title={`${post?.likes?.length} Likes`}
-                className="flex items-center gap-1 text-sm text-gray-400 hover:text-(--text-clr)"
+                className="flex items-center gap-1 text-sm text-gray-400"
               >
                 <ThumbsUp size={20} /> {post?.likes?.length}
               </div>
@@ -158,12 +169,12 @@ const PostCard = ({
               {isMoreOptionsOpen && (
                 <div
                   ref={moreOptionsRef}
-                  className="absolute top-full right-0 z-1 flex flex-col whitespace-nowrap bg-gray-500 rounded-md shadow-md"
+                  className="absolute top-full right-0 z-100 flex flex-col whitespace-nowrap bg-(--text-clr) text-(--bg-clr) rounded-lg shadow-md"
                 >
                   <button
                     type="button"
                     title="Add to Bookmark"
-                    className="flex items-center gap-2 text-(--text-clr) rounded-md p-2 hover:bg-(--text-clr)/20"
+                    className="flex items-center gap-2 rounded-lg p-2 hover:backdrop-brightness-90"
                     onClick={openAddPostToBookmarkDialog}
                   >
                     <BookmarkPlus size={24} />
@@ -173,7 +184,7 @@ const PostCard = ({
                     <button
                       type="button"
                       title="Remove from current Bookmark"
-                      className="flex items-center gap-2 text-(--text-clr) rounded-md p-2 hover:bg-(--text-clr)/20"
+                      className="flex items-center gap-2 text-(--text-clr) rounded-lg p-2 hover:bg-(--text-clr)/20"
                       onClick={handleRemovePostFromBookmark}
                     >
                       <BookmarkMinus size={24} />
@@ -184,7 +195,7 @@ const PostCard = ({
                     <button
                       type="button"
                       title="Remove Post"
-                      className="flex items-center gap-2 text-(--text-clr) rounded-md p-2 hover:bg-(--text-clr)/20"
+                      className="flex items-center gap-2 text-(--text-clr) rounded-lg p-2 hover:bg-(--text-clr)/20"
                       onClick={openRemovePostDialog}
                     >
                       <Trash size={24} />

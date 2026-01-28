@@ -1,5 +1,9 @@
 import type { CreatePostCommentDto, PostComment } from "../types/post-comment";
 import type { CreatePostDto, Post, UpdatePostDto } from "../types/post.types";
+import type {
+  PostsQueryDto,
+  PostsQueryResponse,
+} from "../types/posts-query.types";
 import { api } from "./api.config";
 
 const PREFIX_RESOURCE = "posts";
@@ -11,8 +15,12 @@ export const createPost = async (
   return data;
 };
 
-export const findAllPosts = async (): Promise<Post[]> => {
-  const { data } = await api.get(`/${PREFIX_RESOURCE}`);
+export const findAllPosts = async (
+  query?: PostsQueryDto
+): Promise<PostsQueryResponse<Post>> => {
+  const { data } = await api.get(`/${PREFIX_RESOURCE}`, {
+    params: query,
+  });
   return data;
 };
 

@@ -67,12 +67,12 @@ const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
       <div className="space-y-4 mt-6">
         <div>
           <NavLink
-            to="/subscriptions"
+            to="/following"
             className={({ isActive }) =>
               `flex items-center gap-4 py-1 px-2 rounded-md ${isActive ? "bg-(--text-clr) text-(--bg-clr)" : "hover:bg-(--text-clr)/25"}`
             }
           >
-            <Users /> Subscriptions
+            <Users /> Following
           </NavLink>
         </div>
 
@@ -125,7 +125,7 @@ const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
             </NavLink>
 
             <NavLink
-              to="/stats"
+              to={`/users/${userId}/stats`}
               className={({ isActive }) =>
                 `flex items-center gap-4 py-1 px-3.5 rounded-md ${
                   isActive

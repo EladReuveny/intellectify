@@ -5,12 +5,6 @@ export class CreateCommentDto {
   content: string;
 
   @IsNumber()
-  userId: number;
-
-  @IsNumber()
-  postId: number;
-
-  @IsNumber()
   @IsOptional()
-  commentsParentId?: number;
+  commentParentId?: number;
 }

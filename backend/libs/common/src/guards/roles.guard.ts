@@ -9,7 +9,7 @@ import { Role } from 'apps/users-service/src/enums/role.enum';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { JwtPayload } from '../types/JwtPayload';
+import { JwtPayload } from '../types/jwt-payload.type';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

@@ -4,10 +4,12 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreatePostDto } from '../dtos/create-post.dto';
 import { UpdatePostDto } from '../dtos/update-post.dto';
 
+import { PostsQueryResponseDto } from '@app/common/dtos/query/posts-query-response.dto';
+import { PostsQueryDto } from '@app/common/dtos/query/posts-query.dto';
 import { Like } from '../entities/like.entity';
 import { Post } from '../entities/post.entity';
 
@@ -36,8 +38,30 @@ export class PostsServiceService {
     return this.postsRepository.save(post);
   }
 
-  async findAll() {
-    return await this.postsRepository.find({ relations: { likes: true } });
+  async findAll(query: PostsQueryDto) {
+    const { q, page, limit, sortBy, order } = query;
+
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await this.postsRepository.findAndCount({
+      where: q ? { title: ILike(`%${q}%`) } : {},
+      order: {
+        [sortBy]: order,
+      },
+      take: limit,
+      skip,
+      relations: { likes: true },
+    });
+
+    return {
+      items: posts,
+      meta: {
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        itemsPerPage: limit,
+      },
+    } as PostsQueryResponseDto<Post>;
   }
 
   async findOne(postId: number) {
@@ -92,7 +116,7 @@ export class PostsServiceService {
 
     return await this.postsRepository.find({
       where: { authorId: userId },
-      relations: { likes: true },
+      relations: { likes: true, comments: true },
     });
   }
 

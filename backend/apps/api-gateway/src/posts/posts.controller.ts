@@ -1,5 +1,6 @@
 import { GetUser } from '@app/common/decorators/get-user.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
+import { PostsQueryDto } from '@app/common/dtos/query/posts-query.dto';
 import {
   Body,
   Controller,
@@ -10,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateCommentDto } from 'apps/posts-service/src/comments/dtos/create-post-comment.dto';
 import { CreatePostDto } from 'apps/posts-service/src/dtos/create-post.dto';
@@ -27,8 +29,8 @@ export class PostsController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query() query: PostsQueryDto) {
+    return this.postsService.findAll(query);
   }
 
   @Get(':id')
@@ -58,13 +60,19 @@ export class PostsController {
 
   @Post(':postId/comments')
   createPostComment(
+    @GetUser('sub') userId: number,
     @Param('postId') postId: number,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    return this.postsService.createPostComment(postId, createCommentDto);
+    return this.postsService.createPostComment(
+      userId,
+      postId,
+      createCommentDto,
+    );
   }
 
   @Get(':postId/comments')
+  @Public()
   findAllComments(@Param('postId') postId: number) {
     return this.postsService.findAllComments(postId);
   }

@@ -1,4 +1,4 @@
-import { JwtPayload } from '@app/common/types/JwtPayload';
+import { JwtPayload } from '@app/common/types/jwt-payload.type';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

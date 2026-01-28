@@ -1,8 +1,6 @@
 import { useAtom } from "jotai";
 import { BookmarkPlus, Folder } from "lucide-react";
 import { useEffect, useRef, type RefObject } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { findUserBookmarks } from "../api/users.api";
 import { useAuth } from "../hooks/useAuth.hook";
 import { bookmarksAtom } from "../store/bookmarks.atoms";
@@ -23,16 +21,10 @@ const AddPostToBookmarkDialog = ({
   const { auth } = useAuth();
   const user = auth?.user;
 
-  const navigate = useNavigate();
-
   const createBookmarkDialog = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      toast.info("Please sign in first to access your bookmarks");
-      return;
-    }
+    if (!user) return;
 
     const fetchUserBookmarks = async () => {
       try {
