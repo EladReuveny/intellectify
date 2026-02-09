@@ -4,6 +4,8 @@ export const USERS_PATTERNS = {
     FIND_ONE: { cmd: 'users.findOne' },
     UPDATE: { cmd: 'users.update' },
     REMOVE: { cmd: 'users.remove' },
+    FOLLOW_USER: { cmd: 'users.followUser' },
+    UNFOLLOW_USER: { cmd: 'users.unfollowUser' },
   },
   events: {},
 } as const;

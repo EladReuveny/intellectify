@@ -50,4 +50,18 @@ export class UsersService {
       { userId },
     );
   }
+
+  followUser(followerId: number, followedId: number) {
+    return this.usersClient.send(USERS_PATTERNS.commands.FOLLOW_USER, {
+      followerId,
+      followedId,
+    });
+  }
+
+  unfollowUser(followerId: number, followedId: number) {
+    return this.usersClient.send(USERS_PATTERNS.commands.UNFOLLOW_USER, {
+      followerId,
+      followedId,
+    });
+  }
 }

@@ -19,10 +19,8 @@ const StatsCard = ({ statsCard }: StatsCardProps) => {
       >
         {statsCard.icon}
       </span>
-      <span className="text-3xl font-bold text-gray-900 dark:text-white">
-        {statsCard.value}
-      </span>
-      <span className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">
+      <span className="text-3xl font-bold">{statsCard.value}</span>
+      <span className="text-gray-400 text-sm font-medium mb-1">
         {statsCard.title}
       </span>
     </div>

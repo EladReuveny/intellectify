@@ -18,7 +18,7 @@ export const getUser = async (userId: number): Promise<User> => {
 
 export const updateUser = async (
   userId: number,
-  updateUser: UpdateUser
+  updateUser: UpdateUser,
 ): Promise<User[]> => {
   const { data } = await api.patch(`/${PREFIX_RESOURCE}/${userId}`, updateUser);
   return data;
@@ -40,8 +40,18 @@ export const findUserLikedPosts = async (userId: number): Promise<Like[]> => {
 };
 
 export const findUserBookmarks = async (
-  userId: number
+  userId: number,
 ): Promise<Bookmark[]> => {
   const { data } = await api.get(`/${PREFIX_RESOURCE}/${userId}/bookmarks`);
+  return data;
+};
+
+export const followUser = async (followedId: number): Promise<User> => {
+  const { data } = await api.post(`/${PREFIX_RESOURCE}/${followedId}/follow`);
+  return data;
+};
+
+export const unfollowUser = async (followedId: number): Promise<User> => {
+  const { data } = await api.delete(`/${PREFIX_RESOURCE}/${followedId}/follow`);
   return data;
 };

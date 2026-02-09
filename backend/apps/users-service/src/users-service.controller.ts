@@ -30,4 +30,20 @@ export class UsersServiceController {
   async remove(@Payload() { id }: { id: number }) {
     return await this.usersServiceService.remove(id);
   }
+
+  @MessagePattern(USERS_PATTERNS.commands.FOLLOW_USER)
+  async followUser(
+    @Payload()
+    { followerId, followedId }: { followerId: number; followedId: number },
+  ) {
+    return await this.usersServiceService.followUser(followerId, followedId);
+  }
+
+  @MessagePattern(USERS_PATTERNS.commands.UNFOLLOW_USER)
+  async unfollowUser(
+    @Payload()
+    { followerId, followedId }: { followerId: number; followedId: number },
+  ) {
+    return await this.usersServiceService.unfollowUser(followerId, followedId);
+  }
 }

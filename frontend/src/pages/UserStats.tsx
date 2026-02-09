@@ -4,6 +4,7 @@ import {
   Heart,
   MessageSquare,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ import {
   findUserBookmarks,
   findUserLikedPosts,
   findUserPosts,
+  getUser,
 } from "../api/users.api";
 import PageTitle from "../components/PageTitle";
 import type { StatsData } from "../components/StatsCard";
@@ -21,21 +23,23 @@ import { useAuth } from "../hooks/useAuth.hook";
 import type { Bookmark } from "../types/bookmark.types";
 import type { Like } from "../types/like.types";
 import type { Post } from "../types/post.types";
+import type { User } from "../types/user.types";
 import { handleError } from "../utils/utils";
 
 type UserStatsProps = {};
 
 const UserStats = ({}: UserStatsProps) => {
   const { auth } = useAuth();
-  const user = auth?.user;
+  const currentUserId = auth?.user.id;
   const navigate = useNavigate();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [likedPosts, setLikedPosts] = useState<Like[]>([]);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!currentUserId) {
       navigate("/login");
       toast.info("Please sign in first to access your stats");
       return;
@@ -43,21 +47,24 @@ const UserStats = ({}: UserStatsProps) => {
 
     const fetchStats = async () => {
       try {
-        const [postsData, likedPostsData, bookmarksData] = await Promise.all([
-          findUserPosts(user?.id!),
-          findUserLikedPosts(user.id!),
-          findUserBookmarks(user.id!),
-        ]);
+        const [postsData, likedPostsData, bookmarksData, userData] =
+          await Promise.all([
+            findUserPosts(currentUserId),
+            findUserLikedPosts(currentUserId),
+            findUserBookmarks(currentUserId),
+            getUser(currentUserId),
+          ]);
         setPosts(postsData);
         setLikedPosts(likedPostsData);
         setBookmarks(bookmarksData);
+        setUser(userData);
       } catch (err) {
         handleError(err);
       }
     };
 
     fetchStats();
-  }, [user, navigate]);
+  }, [currentUserId, navigate]);
 
   let totalComments = 0;
   posts.forEach((post) => (totalComments += post.comments?.length ?? 0));
@@ -89,36 +96,28 @@ const UserStats = ({}: UserStatsProps) => {
     },
     {
       id: 4,
+      title: "Followers",
+      value: user?.followers?.length || 0,
+      icon: <Users />,
+      bgColor: "bg-cyan-500/10",
+      textColor: "text-cyan-500",
+    },
+    {
+      id: 5,
+      title: "Following",
+      value: user?.following?.length || 0,
+      icon: <Users />,
+      bgColor: "bg-cyan-500/10",
+      textColor: "text-cyan-500",
+    },
+    {
+      id: 6,
       title: "Bookmarks",
       value: bookmarks.length,
       icon: <BookmarkCheck />,
       bgColor: "bg-yellow-500/10",
       textColor: "text-yellow-500",
     },
-    // {
-    //   id: 5,
-    //   title: "Followers",
-    //   value: user?.followers?.length || 0,
-    //   icon: <Users />,
-    //   bgColor: "bg-cyan-500/10",
-    //   textColor: "text-cyan-500",
-    // },
-    // {
-    //   id: 6,
-    //   title: "Following",
-    //   value: user?.following?.length || 0,
-    //   icon: <Users />,
-    //   bgColor: "bg-cyan-500/10",
-    //   textColor: "text-cyan-500",
-    // },
-    // {
-    //   id: 7,
-    //   title: "Likes",
-    //   value: user?.likes?.length || 0,
-    //   icon: <Heart />,
-    //   bgColor: "bg-red-500/10",
-    //   textColor: "text-red-500",
-    // },
   ];
 
   return (

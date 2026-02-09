@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Role } from '../enums/role.enum';
@@ -29,4 +31,15 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   avatarUrl?: string;
+
+  @ManyToMany(() => User, (user) => user.followers)
+  @JoinTable({
+    name: 'followers_following',
+    joinColumn: { name: 'followerId' },
+    inverseJoinColumn: { name: 'followedId' },
+  })
+  following: User[];
+
+  @ManyToMany(() => User, (user) => user.following)
+  followers: User[];
 }

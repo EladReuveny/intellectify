@@ -10,6 +10,10 @@ export type User = {
   role: Role;
 
   avatarUrl?: string;
+
+  followers: User[];
+
+  following: User[];
 };
 
 export type Role = "user" | "admin";

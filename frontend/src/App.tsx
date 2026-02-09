@@ -4,15 +4,18 @@ import { ToastContainer } from "react-toastify";
 import BookmarkDetails from "./components/BookmarkDetails";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import Following from "./pages/Following";
 import Home from "./pages/Home";
 import LikedPosts from "./pages/LikedPosts";
 import Login from "./pages/Login";
 import PostDetails from "./pages/PostDetails";
 import PostsPage from "./pages/PostsPage";
 import Profile from "./pages/Profile";
+import PublicProfile from "./pages/PublicProfile";
 import Register from "./pages/Register";
 import UserBookmarks from "./pages/UserBookmarks";
 import UserPosts from "./pages/UserPosts";
+import UsersManagement from "./pages/UsersManagement";
 import UserStats from "./pages/UserStats";
 
 type AppProps = {};
@@ -59,6 +62,18 @@ const App = ({}: AppProps) => {
     {
       path: "/users/:userId/stats",
       element: <UserStats />,
+    },
+    {
+      path: "/following",
+      element: <Following />,
+    },
+    {
+      path: "/:username",
+      element: <PublicProfile />,
+    },
+    {
+      path: "/admin/users",
+      element: <UsersManagement />,
     },
   ];
 

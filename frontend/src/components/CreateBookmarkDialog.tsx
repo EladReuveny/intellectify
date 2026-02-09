@@ -70,7 +70,7 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
           <button
             type="reset"
             onClick={closeDialog}
-            className="flex items-center gap-2 py-2 px-3 text-gray-400 border border-gray-400 rounded-md hover:bg-(--text-clr)/10"
+            className="flex items-center gap-2 py-2 px-3 text-gray-400 border border-gray-400 rounded-md hover:bg-(--text-clr)/15"
           >
             <X size={24} /> Cancel
           </button>

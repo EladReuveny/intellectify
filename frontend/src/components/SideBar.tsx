@@ -1,10 +1,11 @@
 import {
-  ArrowRight,
   Bookmark,
   ChartNoAxesCombined,
+  ChevronRight,
   Library,
   MenuIcon,
   Newspaper,
+  Shield,
   ThumbsUp,
   Users,
 } from "lucide-react";
@@ -17,9 +18,10 @@ type SideBarProps = {
   dialogRef: RefObject<HTMLDialogElement | null>;
 };
 
-const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
+const SideBar = ({ dialogRef }: SideBarProps) => {
   const { auth } = useAuth();
   const userId = auth?.user.id;
+  const userRole = auth?.user.role;
 
   const location = useLocation();
 
@@ -76,15 +78,15 @@ const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
           </NavLink>
         </div>
 
-        <hr className="text-gray-400 my-2" />
+        <hr className="text-(--text-clr)/35 my-2" />
 
         <details className="group">
           <summary className="flex items-center gap-4 mb-2 py-1 px-2 cursor-pointer rounded-md hover:bg-(--text-clr)/25">
             <Library /> My Library{" "}
-            <ArrowRight className="group-open:rotate-90" />
+            <ChevronRight className="ml-auto group-open:rotate-90" />
           </summary>
 
-          <ul className="space-y-2">
+          <div className="space-y-2">
             <NavLink
               to={`/users/${userId}/bookmarks`}
               className={({ isActive }) =>
@@ -136,8 +138,35 @@ const SideBar = ({ dialogRef: dialogRef }: SideBarProps) => {
             >
               <ChartNoAxesCombined /> Stats
             </NavLink>
-          </ul>
+          </div>
         </details>
+
+        {userRole === "admin" && (
+          <>
+            <hr className="text-(--text-clr)/35 my-2" />
+
+            <details className="group">
+              <summary className="flex items-center gap-4 mb-2 py-1 px-2 cursor-pointer rounded-md hover:bg-(--text-clr)/25">
+                <Shield /> Admin{" "}
+                <ChevronRight className="ml-auto group-open:rotate-90" />
+              </summary>
+              <div className="space-y-2">
+                <NavLink
+                  to={`/admin/users`}
+                  className={({ isActive }) =>
+                    `flex items-center gap-4 py-1 px-3.5 rounded-md ${
+                      isActive
+                        ? "bg-(--text-clr) text-(--bg-clr)"
+                        : "hover:bg-(--text-clr)/25"
+                    }`
+                  }
+                >
+                  <Users /> Users Management
+                </NavLink>
+              </div>
+            </details>
+          </>
+        )}
       </div>
     </dialog>
   );

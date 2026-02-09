@@ -33,6 +33,12 @@ export class UsersServiceService {
   async findOne(id: number) {
     const user = await this.usersRepository.findOne({
       where: { id },
+      relations: {
+        followers: true,
+        following: {
+          followers: true,
+        },
+      },
     });
 
     if (!user) {
@@ -153,6 +159,11 @@ export class UsersServiceService {
   async validateLoginCredentials(loginUserDto: LoginUserDto) {
     const foundUser = await this.usersRepository.findOne({
       where: { email: loginUserDto.email },
+      relations: {
+        following: {
+          followers: true,
+        },
+      },
     });
 
     if (!foundUser) {
@@ -209,5 +220,58 @@ export class UsersServiceService {
 
   async generateAccessToken(payload: JwtPayload) {
     return await this.jwtService.signAsync(payload);
+  }
+
+  async followUser(followerId: number, followedId: number) {
+    const followerUser = await this.usersRepository.findOne({
+      where: { id: followerId },
+      relations: {
+        following: true,
+      },
+    });
+
+    const isAlreadyFollowing = followerUser?.following.some(
+      (u) => u.id === followedId,
+    );
+    if (isAlreadyFollowing) {
+      throw new RpcException({
+        statusCode: HttpStatus.CONFLICT,
+        message: 'You are already following this user',
+      });
+    }
+
+    const followingUser = await this.usersRepository.findOne({
+      where: { id: followedId },
+    });
+
+    if (!followerUser || !followingUser) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'One of the users not found',
+      });
+    }
+
+    followerUser.following.push(followingUser);
+
+    return await this.usersRepository.save(followerUser);
+  }
+
+  async unfollowUser(followerId: number, followedId: number) {
+    const followerUser = await this.usersRepository.findOne({
+      where: { id: followerId },
+      relations: {
+        following: true,
+      },
+    });
+
+    if (!followerUser) {
+      throw new RpcException({ statusCode: 404, message: 'User not found' });
+    }
+
+    followerUser.following = followerUser?.following.filter(
+      (f) => f.id !== followedId,
+    );
+
+    return await this.usersRepository.save(followerUser);
   }
 }
