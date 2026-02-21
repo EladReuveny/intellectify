@@ -1,10 +1,6 @@
-import { useAtom } from "jotai";
 import { SquarePen, Type, X } from "lucide-react";
 import React from "react";
-import { toast } from "react-toastify";
-import { createBookmark } from "../api/bookmarks.api";
-import { bookmarksAtom } from "../store/bookmarks.atoms";
-import { handleError } from "../utils/utils";
+import { useCreateBookmark } from "../features/bookmarks/bookmarks.mutations";
 import Dialog from "./Dialog";
 
 type CreateBookmarkDialogProps = {
@@ -12,7 +8,7 @@ type CreateBookmarkDialogProps = {
 };
 
 const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
-  const [_, setBookmarks] = useAtom(bookmarksAtom);
+  const { mutate: createBookmarkMutation } = useCreateBookmark();
 
   const closeDialog = () => {
     dialogRef.current?.close();
@@ -26,15 +22,15 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
 
     const title = formData.get("title") as string;
 
-    try {
-      const data = await createBookmark({ title });
-      setBookmarks((prev) => [...prev, data]);
-      toast.success("Bookmark created successfully!");
-      closeDialog();
-      form.reset();
-    } catch (err) {
-      handleError(err);
-    }
+    createBookmarkMutation(
+      { title },
+      {
+        onSuccess: () => {
+          closeDialog();
+          form.reset();
+        },
+      },
+    );
   };
 
   return (

@@ -1,29 +1,47 @@
 import { Calendar, ThumbsUp, UserMinus, UserPlus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
-import { findPost, toggleLikePost } from "../api/posts.api";
-import { followUser, getUser, unfollowUser } from "../api/users.api";
+import { Link, useParams } from "react-router-dom";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
 import PostComments from "../components/PostComments";
+import Spinner from "../components/Spinner";
 import UserAvatar from "../components/UserAvatar";
+import { useToggleLikePost } from "../features/posts/posts.mutations";
+import { useFindPost } from "../features/posts/posts.queries";
+import {
+  useFollowUser,
+  useUnfollowUser,
+} from "../features/users/users.mutations";
+import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import type { Post } from "../types/post.types";
-import type { User } from "../types/user.types";
 import { handleError } from "../utils/utils";
 
 type PostsDetailsProps = {};
 
 const PostDetails = ({}: PostsDetailsProps) => {
-  const [post, setPost] = useState<Post | null>(null);
-  const [author, setAuthor] = useState<User | null>(null);
-
   const { postId } = useParams();
 
   const { auth } = useAuth();
   const user = auth?.user;
 
-  const navigate = useNavigate();
+  const {
+    data: post,
+    isLoading: isPostLoading,
+    isError: isPostError,
+    error: postError,
+  } = useFindPost(Number(postId));
+
+  const {
+    data: author,
+    isLoading: isAuthorLoading,
+    isError: isAuthorError,
+    error: authorError,
+  } = useGetUser(post?.authorId!);
+
+  const { mutate: toggleLikePostMutation } = useToggleLikePost();
+
+  const { mutate: followUserMutation } = useFollowUser();
+
+  const { mutate: unfollowUserMutation } = useUnfollowUser();
 
   const isUserLikedPost = post?.likes?.some((like) => like.userId === user?.id);
 
@@ -31,73 +49,27 @@ const PostDetails = ({}: PostsDetailsProps) => {
     (f) => f.id === user?.id,
   );
 
-  useEffect(() => {
-    const fetchPostDetails = async () => {
-      try {
-        const data = await findPost(Number(postId));
-        setPost(data);
-      } catch (err) {
-        handleError(err);
-      }
-    };
+  const handleToggleFollow = () => {
+    if (!author?.id) return;
 
-    const fetchAuthorData = async () => {
-      try {
-        const data = await getUser(post?.authorId!);
-        setAuthor(data);
-      } catch (err) {
-        handleError(err);
-      }
-    };
-
-    fetchPostDetails();
-    fetchAuthorData();
-  }, []);
-
-  const handleToggleLikePost = async () => {
-    try {
-      if (!user) {
-        toast.info("Please sign in first to like a post");
-        navigate("/login");
-        return;
-      }
-
-      const updatedPost = await toggleLikePost(Number(postId));
-      setPost(updatedPost);
-    } catch (err) {
-      handleError(err);
+    if (isUserFollowingAuthor) {
+      unfollowUserMutation(author?.id);
+    } else {
+      followUserMutation(author?.id);
     }
   };
 
-  const handleToggleFollow = async () => {
-    try {
-      if (isUserFollowingAuthor) {
-        await unfollowUser(author?.id!);
-        setAuthor((prev) =>
-          prev
-            ? {
-                ...prev,
-                followers: (prev.followers ?? []).filter(
-                  (f) => f.id !== user?.id,
-                ),
-              }
-            : prev,
-        );
-      } else {
-        const data = await followUser(author?.id!);
-        setAuthor((prev) =>
-          prev
-            ? {
-                ...prev,
-                followers: [...(prev.followers ?? []), data],
-              }
-            : prev,
-        );
-      }
-    } catch (err) {
-      handleError(err);
-    }
-  };
+  const isLoading = isPostLoading || isAuthorLoading;
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  const isError = isPostError || isAuthorError;
+  if (isError) {
+    const error = postError || authorError;
+    handleError(error);
+    return <ErrorFallback error={error!} />;
+  }
 
   return (
     <article className="px-2">
@@ -115,7 +87,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
           >
             <UserAvatar avatarUrl={author?.avatarUrl} size={30} />
             <span className="text-gray-400 group-hover:text-(--text-clr)">
-              {author?.email.split("@")[0]}
+              @{author?.email.split("@")[0]}
             </span>
           </Link>
 
@@ -155,7 +127,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
           <div className="flex items-center gap-1 text-sm text-gray-400">
             <button
               type="button"
-              onClick={handleToggleLikePost}
+              onClick={() => toggleLikePostMutation(post?.id!)}
               title={isUserLikedPost ? "Unlike" : "Like"}
             >
               <ThumbsUp

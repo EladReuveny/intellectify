@@ -1,50 +1,44 @@
 import { UserIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getUser, unfollowUser } from "../api/users.api";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
+import Spinner from "../components/Spinner";
 import UserListItem from "../components/UserListItem";
+import { useUnfollowUser } from "../features/users/users.mutations";
+import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import type { User } from "../types/user.types";
 import { handleError } from "../utils/utils";
 
-const Following = () => {
+type FollowingPageProps = {};
+
+const FollowingPage = ({}: FollowingPageProps) => {
   const { auth } = useAuth();
   const loggedInUserId = auth?.user?.id;
-
-  const [user, setUser] = useState<User | null>(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if (!loggedInUserId) {
-          navigate("/login");
-          toast.info("Please sign in first to access your profile");
-          return;
-        }
-
-        const freshUser = await getUser(loggedInUserId);
-        setUser(freshUser);
-      } catch (err) {
-        handleError(err);
-      }
-    };
-
-    fetchUser();
+    if (!loggedInUserId) {
+      navigate("/login");
+      toast.info("Please sign in first to access your profile");
+      return;
+    }
   }, []);
 
-  const handleUnfollow = async (userIdToUnfollow: number) => {
-    try {
-      const data = await unfollowUser(userIdToUnfollow);
-      setUser(data);
-      toast.success("Unfollowed successfully");
-    } catch (err) {
-      handleError(err);
-    }
-  };
+  const { data: user, isLoading, isError, error } = useGetUser(loggedInUserId!);
+
+  const { mutate: unfollowMutation } = useUnfollowUser();
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <section className="px-2">
@@ -57,7 +51,7 @@ const Following = () => {
       {user?.following?.length ? (
         <div className="space-y-3">
           {user.following.map((u) => (
-            <UserListItem key={u.id} user={u} onUnfollow={handleUnfollow} />
+            <UserListItem key={u.id} user={u} onUnfollow={unfollowMutation} />
           ))}
         </div>
       ) : (
@@ -70,4 +64,4 @@ const Following = () => {
   );
 };
 
-export default Following;
+export default FollowingPage;

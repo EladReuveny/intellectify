@@ -11,22 +11,18 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { removePostFromBookmark } from "../api/bookmarks.api";
-import { removePost } from "../api/posts.api";
+import { useRemovePostFromBookmark } from "../features/bookmarks/bookmarks.mutations";
+import { useRemovePost } from "../features/posts/posts.mutations";
 import { useAuth } from "../hooks/useAuth.hook";
-import {
-  bookmarkAtom,
-  postIdToAddToBookmarkAtom,
-} from "../store/bookmarks.atoms";
-import { postsAtom } from "../store/posts.atom";
+import { postIdToAddToBookmarkAtom } from "../store/bookmarks.atoms";
 import type { Post } from "../types/post.types";
-import { handleError } from "../utils/utils";
 import AddPostToBookmarkDialog from "./AddPostToBookmarkDialog";
 import ConfirmationDialog from "./ConfirmationDialog";
 
 type PostCardProps = {
   post: Post;
   index: number;
+  currentBookmarkId?: number;
   showRemoveFromCurrentBookmark?: boolean;
   showRemovePost?: boolean;
 };
@@ -34,12 +30,11 @@ type PostCardProps = {
 const PostCard = ({
   post,
   index,
+  currentBookmarkId,
   showRemoveFromCurrentBookmark = false,
   showRemovePost = false,
 }: PostCardProps) => {
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
-  const [bookmark, setBookmark] = useAtom(bookmarkAtom);
-  const [, setPosts] = useAtom(postsAtom);
   const [, setPostIdToAddToBookmark] = useAtom(postIdToAddToBookmarkAtom);
 
   const moreOptionsRef = useRef<HTMLDivElement | null>(null);
@@ -50,6 +45,11 @@ const PostCard = ({
   const user = auth?.user;
 
   const navigate = useNavigate();
+
+  const { mutate: removePostFromBookmarkMutation } =
+    useRemovePostFromBookmark();
+
+  const { mutate: removePostMutation } = useRemovePost();
 
   useEffect(() => {
     const handleOutSideClick = (e: MouseEvent) => {
@@ -92,32 +92,22 @@ const PostCard = ({
     addToBookmarkDialogRef.current?.showModal();
   };
 
+  const openRemovePostDialog = () => {
+    removePostDialogRef.current?.showModal();
+  };
+
   const handleRemovePostFromBookmark = async () => {
-    if (!bookmark) {
+    if (!currentBookmarkId) {
       return;
     }
 
-    try {
-      const data = await removePostFromBookmark(bookmark.id, post.id);
-      setBookmark(data);
-      toast.success("Post removed from bookmark successfully");
-    } catch (err) {
-      handleError(err);
-    }
-  };
-
-  const handleRemovePost = async () => {
-    try {
-      await removePost(post.id);
-      setPosts((prev) => prev.filter((p) => p.id !== post.id));
-      toast.success("Post removed successfully");
-    } catch (err) {
-      handleError(err);
-    }
-  };
-
-  const openRemovePostDialog = () => {
-    removePostDialogRef.current?.showModal();
+    removePostFromBookmarkMutation(
+      { bookmarkId: currentBookmarkId, postId: post.id },
+      {
+        onSuccess: () =>
+          toast.success("Post removed from bookmark successfully"),
+      },
+    );
   };
 
   return (
@@ -184,7 +174,7 @@ const PostCard = ({
                     <button
                       type="button"
                       title="Remove from current Bookmark"
-                      className="flex items-center gap-2 text-(--text-clr) rounded-lg p-2 hover:bg-(--text-clr)/20"
+                      className="flex items-center gap-2 rounded-lg p-2 hover:backdrop-brightness-90"
                       onClick={handleRemovePostFromBookmark}
                     >
                       <BookmarkMinus size={24} />
@@ -213,7 +203,7 @@ const PostCard = ({
 
       <ConfirmationDialog
         dialogRef={removePostDialogRef}
-        onAction={handleRemovePost}
+        onAction={() => removePostMutation(post.id)}
         title="Remove Post"
         description="Are you sure you want to remove this post?"
         icon={<Trash size={32} />}

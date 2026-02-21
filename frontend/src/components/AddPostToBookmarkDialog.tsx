@@ -1,13 +1,14 @@
-import { useAtom } from "jotai";
 import { BookmarkPlus, Folder } from "lucide-react";
 import { useEffect, useRef, type RefObject } from "react";
-import { findUserBookmarks } from "../api/users.api";
+import { toast } from "react-toastify";
+import { useFindUserBookmarks } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import { bookmarksAtom } from "../store/bookmarks.atoms";
 import { handleError } from "../utils/utils";
 import BookmarksList from "./BookmarksList";
 import CreateBookmarkDialog from "./CreateBookmarkDialog";
 import Dialog from "./Dialog";
+import ErrorFallback from "./ErrorFallback";
+import Spinner from "./Spinner";
 
 type AddPostToBookmarkDialogProps = {
   dialogRef: RefObject<HTMLDialogElement | null>;
@@ -16,32 +17,38 @@ type AddPostToBookmarkDialogProps = {
 const AddPostToBookmarkDialog = ({
   dialogRef,
 }: AddPostToBookmarkDialogProps) => {
-  const [bookmarks, setBookmarks] = useAtom(bookmarksAtom);
-
   const { auth } = useAuth();
   const user = auth?.user;
 
   const createBookmarkDialog = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-
-    const fetchUserBookmarks = async () => {
-      try {
-        const data = await findUserBookmarks(Number(user?.id));
-        setBookmarks(data);
-      } catch (err) {
-        dialogRef.current?.close();
-        handleError(err);
-      }
-    };
-
-    fetchUserBookmarks();
+    if (!user && dialogRef?.current?.open) {
+      toast.info("Please sign in first to access your bookmarks");
+      return;
+    }
   }, []);
+
+  const {
+    data: bookmarks,
+    isLoading,
+    isError,
+    error,
+  } = useFindUserBookmarks(user?.id!);
 
   const openCreateBookmarkDialog = () => {
     createBookmarkDialog.current?.showModal();
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    dialogRef.current?.close();
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <Dialog dialogRef={dialogRef} title="Add to Bookmark">
@@ -54,7 +61,9 @@ const AddPostToBookmarkDialog = ({
         Create Bookmark
       </button>
 
-      {bookmarks.length === 0 ? (
+      {bookmarks?.length ? (
+        <BookmarksList bookmarks={bookmarks} dialogRef={dialogRef} />
+      ) : (
         <div className="py-10 text-center flex flex-col items-center gap-4">
           <div className="p-4 bg-(--text-clr)/10 rounded-full">
             <Folder size={48} className="text-gray-400" />
@@ -66,8 +75,6 @@ const AddPostToBookmarkDialog = ({
             </p>
           </div>
         </div>
-      ) : (
-        <BookmarksList bookmarks={bookmarks} dialogRef={dialogRef} />
       )}
 
       <CreateBookmarkDialog dialogRef={createBookmarkDialog} />

@@ -18,6 +18,11 @@ export class UsersServiceController {
     return await this.usersServiceService.findOne(id);
   }
 
+  @MessagePattern(USERS_PATTERNS.commands.FIND_MANY)
+  async findMany(@Payload() { userIds }: { userIds: number[] }) {
+    return await this.usersServiceService.findMany(userIds);
+  }
+
   @MessagePattern(USERS_PATTERNS.commands.UPDATE)
   async update(
     @Payload()

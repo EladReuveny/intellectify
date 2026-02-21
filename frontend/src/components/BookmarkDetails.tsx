@@ -1,24 +1,20 @@
-import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
-import { findBookmark } from "../api/bookmarks.api";
+import { useFindBookmark } from "../features/bookmarks/bookmarks.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import { bookmarkAtom } from "../store/bookmarks.atoms";
 import { handleError } from "../utils/utils";
+import ErrorFallback from "./ErrorFallback";
 import PageTitle from "./PageTitle";
 import PostsList from "./PostsList";
+import Spinner from "./Spinner";
 
 type BookmarkDetailsProps = {};
 
 const BookmarkDetails = ({}: BookmarkDetailsProps) => {
-  // const [bookmark, setBookmark] = useState<Bookmark | null>(null);
-  const [bookmark, setBookmark] = useAtom(bookmarkAtom);
-
   const { bookmarkId } = useParams();
 
-  const { auth, logout } = useAuth();
+  const { auth } = useAuth();
   const user = auth?.user;
 
   const navigate = useNavigate();
@@ -29,20 +25,23 @@ const BookmarkDetails = ({}: BookmarkDetailsProps) => {
       toast.info("Please sign in first to access bookmark details");
       return;
     }
-
-    const fetchBookmark = async () => {
-      try {
-        const data = await findBookmark(Number(bookmarkId));
-        setBookmark(data);
-      } catch (err) {
-        handleError(err);
-        navigate("/login");
-        logout();
-      }
-    };
-
-    fetchBookmark();
   }, []);
+
+  const {
+    data: bookmark,
+    isLoading,
+    isError,
+    error,
+  } = useFindBookmark(Number(bookmarkId));
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <section className="px-2">
@@ -58,6 +57,7 @@ const BookmarkDetails = ({}: BookmarkDetailsProps) => {
       ) : (
         <PostsList
           posts={bookmark?.posts ?? []}
+          currentBookmarkId={bookmark?.id}
           showRemoveFromCurrentBookmark={true}
         />
       )}

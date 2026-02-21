@@ -1,13 +1,13 @@
 import { User as UserIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getAllUsers } from "../api/users.api";
-import Loading from "../components/Loading";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
+import Spinner from "../components/Spinner";
 import UserCard from "../components/UserCard";
+import { useGetAllUsers } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import type { User } from "../types/user.types";
 import { handleError } from "../utils/utils";
 
 type UsersManagementProps = {};
@@ -18,32 +18,23 @@ const UsersManagement = ({}: UsersManagementProps) => {
 
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!user) {
       navigate("/login");
       toast.info("Please sign in first to access your following");
       return;
     }
-
-    const fetchUsers = async () => {
-      try {
-        const usersData = await getAllUsers();
-        setUsers(usersData);
-      } catch (err) {
-        handleError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
   }, []);
 
-  if (loading) {
-    return <Loading />;
+  const { data: users, isLoading, isError, error } = useGetAllUsers();
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
   }
 
   return (
@@ -51,12 +42,12 @@ const UsersManagement = ({}: UsersManagementProps) => {
       <PageTitle title="Users Management" />
 
       <p className="text-gray-400 mb-5">
-        Manage and view users ({users.length ?? 0})
+        Manage and view users ({users?.length ?? 0})
       </p>
 
-      {users.length ? (
+      {users?.length ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
-          {users.map((u) => (
+          {users?.map((u) => (
             <UserCard key={u.id} user={u} />
           ))}
         </div>

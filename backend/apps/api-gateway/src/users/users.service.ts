@@ -21,6 +21,12 @@ export class UsersService {
     return this.usersClient.send(USERS_PATTERNS.commands.FIND_ONE, { id });
   }
 
+  findMany(userIds: number[]) {
+    return this.usersClient.send(USERS_PATTERNS.commands.FIND_MANY, {
+      userIds,
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return this.usersClient.send(USERS_PATTERNS.commands.UPDATE, {
       id,

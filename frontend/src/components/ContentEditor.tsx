@@ -1,18 +1,16 @@
 import ReactQuill, { Quill } from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
-// 1. Pixel-based size logic
 const Size = Quill.import("attributors/style/size") as any;
 Size.whitelist = ["12px", "14px", "16px", "18px", "20px", "24px", "32px"];
 Quill.register(Size, true);
 
-const ContentEditor = ({
-  value,
-  onChange,
-}: {
+type ContentEditorProps = {
   value: string;
   onChange: (v: string) => void;
-}) => {
+};
+
+const ContentEditor = ({ value, onChange }: ContentEditorProps) => {
   const modules = {
     toolbar: [
       [{ size: ["12px", "14px", "16px", "18px", "20px", "24px", "32px"] }],

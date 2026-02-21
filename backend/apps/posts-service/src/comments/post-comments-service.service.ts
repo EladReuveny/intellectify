@@ -1,7 +1,11 @@
+import { Microservice } from '@app/common/constants/microservices';
+import { USERS_PATTERNS } from '@app/common/constants/patterns/users.patterns';
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { User } from 'apps/users-service/src/entities/user.entity';
+import { lastValueFrom } from 'rxjs';
+import { IsNull, Repository } from 'typeorm';
 import { Like } from '../entities/like.entity';
 import { PostsServiceService } from '../posts/posts-service.service';
 import { CreateCommentDto } from './dtos/create-post-comment.dto';
@@ -15,6 +19,7 @@ export class PostCommentsServiceService {
     @Inject(forwardRef(() => PostsServiceService))
     private readonly postsServiceService: PostsServiceService,
     @InjectRepository(Like) private readonly likesRepository: Repository<Like>,
+    @Inject(Microservice.USERS) private readonly usersClient: ClientProxy,
   ) {}
 
   async findOne(commentId: number) {
@@ -57,21 +62,91 @@ export class PostCommentsServiceService {
 
     return this.postCommentsRepository.save(newComment);
   }
-  async findAllComments(postId: number) {
-    return await this.postCommentsRepository.find({
+  async findAllRootComments(postId: number) {
+    const comments = await this.postCommentsRepository.find({
       where: {
         post: {
           id: postId,
+        },
+        commentParent: IsNull(),
+      },
+      relations: {
+        likes: true,
+      },
+      loadRelationIds: {
+        relations: ['replies'],
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+    });
+
+    const userIds = comments.map((c) => c.userId);
+
+    const users: User[] = await lastValueFrom(
+      this.usersClient.send(USERS_PATTERNS.commands.FIND_MANY, { userIds }),
+    );
+
+    const usersMap = new Map(users.map((u) => [u.id, u]));
+
+    return comments.map((c) => {
+      const user = usersMap.get(c.userId);
+
+      if (!user) {
+        return c;
+      }
+
+      const { id, email, avatarUrl } = user;
+
+      return {
+        ...c,
+        user: {
+          id,
+          email,
+          avatarUrl,
+        },
+      };
+    });
+  }
+
+  async findAllCommentReplies(postId: number, commentId: number) {
+    const commentReplies = await this.postCommentsRepository.find({
+      where: {
+        commentParent: {
+          id: commentId,
         },
       },
       relations: {
         likes: true,
         replies: true,
-        commentParent: true,
       },
-      order: {
-        createdAt: 'ASC',
-      },
+    });
+
+    const userIds = commentReplies.map((c) => c.userId);
+
+    const users: User[] = await lastValueFrom(
+      this.usersClient.send(USERS_PATTERNS.commands.FIND_MANY, { userIds }),
+    );
+
+    const usersMap = new Map(users.map((u) => [u.id, u]));
+
+    return commentReplies.map((c) => {
+      const user = usersMap.get(c.userId);
+
+      if (!user) {
+        return c;
+      }
+
+      const { id, email, avatarUrl } = user;
+
+      return {
+        ...c,
+        user: {
+          id,
+          email,
+          avatarUrl,
+        },
+      };
     });
   }
 

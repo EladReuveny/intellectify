@@ -2,9 +2,9 @@ import { FileText, Image, SquarePen, Type, X } from "lucide-react";
 import { useState, type RefObject } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createPost } from "../api/posts.api";
+import { useCreatePost } from "../features/posts/posts.mutations";
 import { useAuth } from "../hooks/useAuth.hook";
-import { handleError } from "../utils/utils";
+import type { Post } from "../types/post.types";
 import ContentEditor from "./ContentEditor";
 import Dialog from "./Dialog";
 
@@ -24,6 +24,8 @@ const CreatePostDialog = ({ dialogRef }: CreatePostDialogProps) => {
     dialogRef.current?.close();
   };
 
+  const { mutate: createPostMutation } = useCreatePost();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -36,21 +38,25 @@ const CreatePostDialog = ({ dialogRef }: CreatePostDialogProps) => {
     const doc = new DOMParser().parseFromString(content, "text/html");
     const plainTextContent = doc.body.textContent || "";
 
-    try {
-      const data = await createPost({
+    createPostMutation(
+      {
         title,
         content: plainTextContent,
         imageUrl,
         authorId: user?.id!,
-      });
-      toast.success("Post created successfully!");
-      navigate(`/posts/${data.id}`);
-      closeDialogRef();
-      form.reset();
-      setContent("");
-    } catch (err) {
-      handleError(err);
-    }
+      },
+      {
+        onSuccess: (data: Post) => {
+          toast.success("Post created successfully!");
+          navigate(`/posts/${data.id}`);
+          form.reset();
+          setContent("");
+        },
+        onSettled: () => {
+          closeDialogRef();
+        },
+      },
+    );
   };
 
   return (

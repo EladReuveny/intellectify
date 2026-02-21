@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthResponseDto } from 'apps/auth-service/src/dto/auth-response.dto';
 import { LoginUserDto } from 'apps/auth-service/src/dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateUserDto } from '../../auth-service/src/dto/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
@@ -51,6 +51,12 @@ export class UsersServiceService {
     return user;
   }
 
+  findMany(userIds: number[]) {
+    return this.usersRepository.find({
+      where: { id: In(userIds) },
+    });
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     const hashedPassword = await this.hashPassword(createUserDto.password);
 
@@ -81,7 +87,7 @@ export class UsersServiceService {
   }
 
   private async handleEmailUpdate(updateUserDto: UpdateUserDto, user: User) {
-    if (updateUserDto.email) {
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
       const isEmailExist = await this.isEmailExist(updateUserDto.email);
 
       if (isEmailExist) {
@@ -96,6 +102,14 @@ export class UsersServiceService {
   }
 
   private async handlePasswordUpdate(updateUserDto: UpdateUserDto, user: User) {
+    if (
+      !updateUserDto.currentPassword &&
+      !updateUserDto.newPassword &&
+      !updateUserDto.confirmNewPassword
+    ) {
+      return;
+    }
+
     if (
       (updateUserDto.currentPassword ||
         updateUserDto.newPassword ||

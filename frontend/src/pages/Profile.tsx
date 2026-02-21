@@ -2,26 +2,38 @@ import { Camera, Check, Edit, Lock, Mail, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { removeUser, updateUser } from "../api/users.api";
+import ErrorFallback from "../components/ErrorFallback";
 import PasswordToggleButton from "../components/PasswordToggleButton";
+import Spinner from "../components/Spinner";
 import UserAvatar from "../components/UserAvatar";
+import {
+  useDeleteAccount,
+  useUpdateUser,
+} from "../features/users/users.mutations";
+import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
 import { handleError } from "../utils/utils";
 
 type ProfileProps = {};
 
 const Profile = ({}: ProfileProps) => {
-  const { auth, logout } = useAuth();
-  const user = auth?.user;
+  const { auth } = useAuth();
+  const currentUserId = auth?.user.id;
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!currentUserId) {
       navigate("/login");
       toast.info("Please sign in first to access your profile");
     }
   }, []);
+
+  const { data: user, isLoading, isError, error } = useGetUser(currentUserId!);
+
+  const { mutate: updateUserMutation } = useUpdateUser();
+
+  const { mutate: deleteAccountMutation } = useDeleteAccount();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isShowCurrentPassword, setIsShowCurrentPassword] = useState(false);
@@ -34,7 +46,20 @@ const Profile = ({}: ProfileProps) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => setAvatarUrl(event.target?.result as string);
+      reader.onload = (event) => {
+        const newAvatarUrl = event.target?.result as string;
+        setAvatarUrl(newAvatarUrl);
+
+        if (user?.id) {
+          updateUserMutation({
+            userId: user.id,
+            updateUserDto: {
+              email: user.email,
+              avatarUrl: newAvatarUrl,
+            },
+          });
+        }
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -52,12 +77,15 @@ const Profile = ({}: ProfileProps) => {
     const newPassword = formData.get("newPassword") as string;
     const confirmNewPassword = formData.get("confirmNewPassword") as string;
 
-    await updateUser(user.id, {
-      email,
-      currentPassword,
-      newPassword,
-      confirmNewPassword,
-      avatarUrl,
+    updateUserMutation({
+      userId: user.id,
+      updateUserDto: {
+        email,
+        currentPassword,
+        newPassword,
+        confirmNewPassword,
+        avatarUrl,
+      },
     });
   };
 
@@ -67,15 +95,17 @@ const Profile = ({}: ProfileProps) => {
       return;
     }
 
-    try {
-      await removeUser(user.id);
-      logout();
-      navigate("/");
-      toast.success("Your account has been deleted successfully");
-    } catch (err) {
-      handleError(err);
-    }
+    deleteAccountMutation(user.id);
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <section className="px-2">
@@ -86,7 +116,7 @@ const Profile = ({}: ProfileProps) => {
       </div>
 
       <div className="flex flex-col items-center gap-4">
-        <UserAvatar avatarUrl={avatarUrl} size={128} position="center" />
+        <UserAvatar avatarUrl={user?.avatarUrl} size={128} position="center" />
         <input
           type="file"
           id="avatar"
@@ -97,7 +127,7 @@ const Profile = ({}: ProfileProps) => {
         />
         <label
           htmlFor="avatar"
-          className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90"
+          className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md cursor-pointer hover:brightness-90"
         >
           <Camera size={24} /> Change Avatar
         </label>

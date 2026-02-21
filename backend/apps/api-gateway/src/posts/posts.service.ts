@@ -58,10 +58,20 @@ export class PostsService {
     });
   }
 
-  findAllComments(postId: number) {
-    return this.postsClient.send(PostsPattern.commands.FIND_ALL_COMMENTS, {
+  findAllRootComments(postId: number) {
+    return this.postsClient.send(PostsPattern.commands.FIND_ALL_ROOT_COMMENTS, {
       postId,
     });
+  }
+
+  findAllCommentReplies(postId: number, commentId: number) {
+    return this.postsClient.send(
+      PostsPattern.commands.FIND_ALL_COMMENT_REPLIES,
+      {
+        postId,
+        commentId,
+      },
+    );
   }
 
   toggleLikeComment(userId: number, postId: number, commentId: number) {

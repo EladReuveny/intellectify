@@ -6,24 +6,17 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  findUserBookmarks,
-  findUserLikedPosts,
-  findUserPosts,
-  getUser,
-} from "../api/users.api";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
+import Spinner from "../components/Spinner";
 import type { StatsData } from "../components/StatsCard";
 import StatsCardsList from "../components/StatsCardsList";
 import UserAvatar from "../components/UserAvatar";
+import { useGetUserStats } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import type { Bookmark } from "../types/bookmark.types";
-import type { Like } from "../types/like.types";
-import type { Post } from "../types/post.types";
-import type { User } from "../types/user.types";
 import { handleError } from "../utils/utils";
 
 type UserStatsProps = {};
@@ -31,49 +24,72 @@ type UserStatsProps = {};
 const UserStats = ({}: UserStatsProps) => {
   const { auth } = useAuth();
   const currentUserId = auth?.user.id;
-  const navigate = useNavigate();
 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [likedPosts, setLikedPosts] = useState<Like[]>([]);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!currentUserId) {
       navigate("/login");
       toast.info("Please sign in first to access your stats");
-      return;
     }
+  }, [currentUserId]);
 
-    const fetchStats = async () => {
-      try {
-        const [postsData, likedPostsData, bookmarksData, userData] =
-          await Promise.all([
-            findUserPosts(currentUserId),
-            findUserLikedPosts(currentUserId),
-            findUserBookmarks(currentUserId),
-            getUser(currentUserId),
-          ]);
-        setPosts(postsData);
-        setLikedPosts(likedPostsData);
-        setBookmarks(bookmarksData);
-        setUser(userData);
-      } catch (err) {
-        handleError(err);
-      }
-    };
+  const [userQuery, postsQuery, likedPostsQuery, bookmarksQuery] =
+    useGetUserStats(currentUserId!);
 
-    fetchStats();
-  }, [currentUserId, navigate]);
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    isError: isUserError,
+    error: userError,
+  } = userQuery;
+
+  const {
+    data: posts,
+    isLoading: isPostsLoading,
+    isError: isPostsError,
+    error: postsError,
+  } = postsQuery;
+
+  const {
+    data: likedPosts,
+    isLoading: isLikedPostsLoading,
+    isError: isLikedPostsError,
+    error: likedPostsError,
+  } = likedPostsQuery;
+
+  const {
+    data: bookmarks,
+    isLoading: isBookmarksLoading,
+    isError: isBookmarksError,
+    error: bookmarksError,
+  } = bookmarksQuery;
+
+  const isLoading =
+    isUserLoading ||
+    isPostsLoading ||
+    isLikedPostsLoading ||
+    isBookmarksLoading;
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  const isError =
+    isPostsError || isLikedPostsError || isBookmarksError || isUserError;
+  if (isError) {
+    const error = userError || postsError || likedPostsError || bookmarksError;
+    handleError(error);
+    return <ErrorFallback error={error!} />;
+  }
 
   let totalComments = 0;
-  posts.forEach((post) => (totalComments += post.comments?.length ?? 0));
+  posts?.forEach((post) => (totalComments += post.comments?.length ?? 0));
 
   const statsCards: StatsData[] = [
     {
       id: 1,
       title: "Created Posts",
-      value: posts.length,
+      value: posts?.length ?? 0,
       icon: <TrendingUp />,
       bgColor: "bg-green-500/10",
       textColor: "text-green-500",
@@ -81,7 +97,7 @@ const UserStats = ({}: UserStatsProps) => {
     {
       id: 2,
       title: "Liked Posts",
-      value: likedPosts.length,
+      value: likedPosts?.length ?? 0,
       icon: <Heart />,
       bgColor: "bg-red-500/10",
       textColor: "text-red-500",
@@ -113,7 +129,7 @@ const UserStats = ({}: UserStatsProps) => {
     {
       id: 6,
       title: "Bookmarks",
-      value: bookmarks.length,
+      value: bookmarks?.length ?? 0,
       icon: <BookmarkCheck />,
       bgColor: "bg-yellow-500/10",
       textColor: "text-yellow-500",
@@ -168,8 +184,8 @@ const UserStats = ({}: UserStatsProps) => {
         </h2>
 
         <div className="space-y-3 mt-3">
-          {posts.length ? (
-            posts.slice(0, 5).map((post) => (
+          {posts?.length ? (
+            posts?.slice(0, 5).map((post) => (
               <Link
                 to={`/posts/${post.id}`}
                 key={post.id}
@@ -200,8 +216,8 @@ const UserStats = ({}: UserStatsProps) => {
         </h2>
 
         <div className="space-y-3 mt-3">
-          {bookmarks.length ? (
-            bookmarks.map((bookmark) => (
+          {bookmarks?.length ? (
+            bookmarks?.map((bookmark) => (
               <Link
                 to={`/users/${user?.id}/bookmarks/${bookmark.id}`}
                 key={bookmark.id}

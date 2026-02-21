@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import BookmarkDetails from "./components/BookmarkDetails";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import Following from "./pages/Following";
+import FollowingPage from "./pages/FollowingPage";
 import Home from "./pages/Home";
 import LikedPosts from "./pages/LikedPosts";
 import Login from "./pages/Login";
@@ -65,7 +65,7 @@ const App = ({}: AppProps) => {
     },
     {
       path: "/following",
-      element: <Following />,
+      element: <FollowingPage />,
     },
     {
       path: "/:username",

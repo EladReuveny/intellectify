@@ -1,15 +1,16 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { Folder, Trash } from "lucide-react"; // Optional icon for empty states
+import { Folder, Trash } from "lucide-react"; 
 import type React from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { addPostToBookmark, removeBookmark } from "../api/bookmarks.api";
 import {
-  bookmarksAtom,
-  postIdToAddToBookmarkAtom,
-} from "../store/bookmarks.atoms";
+  useAddPostToBookmark,
+  useRemoveBookmark,
+} from "../features/bookmarks/bookmarks.mutations";
+import { usersKeys } from "../features/users/users.keys";
+import { postIdToAddToBookmarkAtom } from "../store/bookmarks.atoms";
 import type { Bookmark } from "../types/bookmark.types";
-import { handleError } from "../utils/utils";
 
 type BookmarkCardProps = {
   bookmark: Bookmark;
@@ -23,44 +24,57 @@ const BookmarkCard = ({
   showRemoveBookmark = false,
 }: BookmarkCardProps) => {
   const { userId } = useParams();
+
   const postsCount = bookmark.posts?.length || 0;
   const firstPostImage = bookmark?.posts?.find(
-    (post) => post.imageUrl
+    (post) => post.imageUrl,
   )?.imageUrl;
+
   const [postIdToAddToBookmark, setPostIdToAddToBookmark] = useAtom(
-    postIdToAddToBookmarkAtom
+    postIdToAddToBookmarkAtom,
   );
-  const [, setBookmarks] = useAtom(bookmarksAtom);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: addPostToBookmarkMutation } = useAddPostToBookmark();
+
+  const { mutate: removeBookmarkMutation } = useRemoveBookmark();
 
   const handleAddPostToBookmark = async (
     e: React.MouseEvent,
-    bookmarkId: number
+    bookmarkId: number,
   ) => {
     if (postIdToAddToBookmark) {
       e.preventDefault();
 
-      try {
-        await addPostToBookmark(bookmarkId, postIdToAddToBookmark);
-        toast.success("Post saved to bookmark successfully");
-      } catch (err) {
-        handleError(err);
-      } finally {
-        dialogRef?.current?.close();
-        setPostIdToAddToBookmark(null);
-      }
+      addPostToBookmarkMutation(
+        {
+          bookmarkId,
+          postId: postIdToAddToBookmark,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Post saved to bookmark successfully");
+          },
+          onSettled: () => {
+            dialogRef?.current?.close();
+            setPostIdToAddToBookmark(null);
+          },
+        },
+      );
     }
   };
 
   const handleRemoveBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    try {
-      await removeBookmark(bookmark.id);
-      setBookmarks((prev) => prev.filter((b) => b.id !== bookmark.id));
-      toast.success("Bookmark deleted successfully");
-    } catch (err) {
-      handleError(err);
-    }
+    removeBookmarkMutation(bookmark.id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: usersKeys.bookmarks(Number(userId)),
+        });
+      },
+    });
   };
 
   return (

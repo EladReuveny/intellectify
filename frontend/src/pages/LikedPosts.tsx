@@ -1,42 +1,57 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { findUserLikedPosts } from "../api/users.api";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
 import PostsList from "../components/PostsList";
-import type { Like } from "../types/like.types";
+import Spinner from "../components/Spinner";
+import { useFindUserLikedPosts } from "../features/users/users.queries";
+import { useAuth } from "../hooks/useAuth.hook";
 import { handleError } from "../utils/utils";
 
 type LikedPostsProps = {};
 
 const LikedPosts = ({}: LikedPostsProps) => {
-  const [likes, setLikes] = useState<Like[]>([]);
+  const { auth } = useAuth();
+  const loggedInUserId = auth?.user?.id;
 
-  const { userId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchLikedPostsByUserId = async () => {
-      try {
-        const data = await findUserLikedPosts(Number(userId));
-        setLikes(data);
-      } catch (err) {
-        handleError(err);
-      }
-    };
-
-    fetchLikedPostsByUserId();
+    if (!loggedInUserId) {
+      navigate("/login");
+      toast.info("Please sign in first to access your profile");
+      return;
+    }
   }, []);
+
+  const {
+    data: likes,
+    isLoading,
+    isError,
+    error,
+  } = useFindUserLikedPosts(loggedInUserId!);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <section className="px-2">
       <PageTitle title="Liked Posts" />
 
-      {likes.length === 0 ? (
+      {likes?.length === 0 ? (
         <div className="text-center">
           <h2 className="font-bold text-2xl mb-1">Empty liked post list</h2>
           <p className="text-gray-400">You have not liked any posts yet.</p>
         </div>
       ) : (
-        <PostsList posts={likes.map((like) => like.post)} />
+        <PostsList posts={likes?.map((like) => like.post) ?? []} />
       )}
     </section>
   );

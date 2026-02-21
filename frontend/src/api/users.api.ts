@@ -19,7 +19,7 @@ export const getUser = async (userId: number): Promise<User> => {
 export const updateUser = async (
   userId: number,
   updateUser: UpdateUser,
-): Promise<User[]> => {
+): Promise<User> => {
   const { data } = await api.patch(`/${PREFIX_RESOURCE}/${userId}`, updateUser);
   return data;
 };

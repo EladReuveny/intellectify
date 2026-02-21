@@ -30,9 +30,19 @@ export class PostCommentsServiceController {
     );
   }
 
-  @MessagePattern(PostsPattern.commands.FIND_ALL_COMMENTS)
+  @MessagePattern(PostsPattern.commands.FIND_ALL_ROOT_COMMENTS)
   findAllComments(@Payload() { postId }: { postId: number }) {
-    return this.postCommentsServiceService.findAllComments(postId);
+    return this.postCommentsServiceService.findAllRootComments(postId);
+  }
+
+  @MessagePattern(PostsPattern.commands.FIND_ALL_COMMENT_REPLIES)
+  findAllCommentReplies(
+    @Payload() { postId, commentId }: { postId: number; commentId: number },
+  ) {
+    return this.postCommentsServiceService.findAllCommentReplies(
+      postId,
+      commentId,
+    );
   }
 
   @MessagePattern(PostsPattern.commands.TOGGLE_LIKE_COMMENT)

@@ -10,18 +10,23 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
+import { handleError } from "../utils/utils";
 import CreatePostDialog from "./CreatePostDialog";
 import Dialog from "./Dialog";
+import ErrorFallback from "./ErrorFallback";
 import Logo from "./Logo";
 import SideBar from "./SideBar";
+import Spinner from "./Spinner";
 import UserAvatar from "./UserAvatar";
 
 const NavBar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const { auth, logout } = useAuth();
-  const user = auth?.user;
+  const userId = auth?.user?.id;
 
   const navigate = useNavigate();
 
@@ -30,12 +35,15 @@ const NavBar = () => {
   const createPostDialog = useRef<HTMLDialogElement | null>(null);
   const searchDialog = useRef<HTMLDialogElement | null>(null);
 
+  const { data: user, isLoading, isError, error } = useGetUser(userId!);
+
   const openSideBarDialog = () => sideBarDialog.current?.showModal();
   const openCreatePostDialog = () => createPostDialog.current?.showModal();
   const openSearchDialog = () => searchDialog.current?.showModal();
 
   const handleLogout = () => {
     logout();
+    toast.success("Sign out successfully");
     setIsUserMenuOpen(false);
     navigate("/");
   };
@@ -88,6 +96,11 @@ const NavBar = () => {
     navigate(`/posts?q=${search}&sortBy=${sortBy}&order=${order}`);
   };
 
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
+
   return (
     <nav className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -112,9 +125,16 @@ const NavBar = () => {
 
         {user ? (
           <div ref={userMenuRef} className="relative">
-            <button type="button" onClick={() => setIsUserMenuOpen((p) => !p)}>
-              <UserAvatar size={44} avatarUrl={user.avatarUrl} />
-            </button>
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen((p) => !p)}
+              >
+                <UserAvatar size={44} avatarUrl={user.avatarUrl} />
+              </button>
+            )}
 
             {isUserMenuOpen && (
               <div className="absolute top-12 right-0 w-48 space-y-2 bg-(--bg-clr) border border-gray-400 rounded-md shadow-lg p-3">
@@ -130,7 +150,7 @@ const NavBar = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 w-full px-3 py-2 rounded text-red-500 hover:bg-red-500/10"
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded text-red-500 hover:bg-red-500/20"
                 >
                   <LogOut /> Sign Out
                 </button>

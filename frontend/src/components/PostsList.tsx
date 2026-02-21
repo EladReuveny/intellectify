@@ -3,12 +3,14 @@ import PostCard from "./PostCard";
 
 type PostsListProps = {
   posts: Post[];
+  currentBookmarkId?: number;
   showRemoveFromCurrentBookmark?: boolean;
   showRemovePost?: boolean;
 };
 
 const PostsList = ({
   posts,
+  currentBookmarkId,
   showRemoveFromCurrentBookmark = false,
   showRemovePost = false,
 }: PostsListProps) => {
@@ -19,6 +21,7 @@ const PostsList = ({
           key={post.id}
           post={post}
           index={i}
+          currentBookmarkId={currentBookmarkId}
           showRemoveFromCurrentBookmark={showRemoveFromCurrentBookmark}
           showRemovePost={showRemovePost}
         />

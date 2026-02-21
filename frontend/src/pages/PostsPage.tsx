@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { findAllPosts } from "../api/posts.api";
+import ErrorFallback from "../components/ErrorFallback";
 import PageTitle from "../components/PageTitle";
 import Pagination from "../components/Pagination";
 import PostsList from "../components/PostsList";
+import Spinner from "../components/Spinner";
+import { useFindAllPosts } from "../features/posts/posts.queries";
 import type { Post } from "../types/post.types";
 import type { PaginationResponseMeta } from "../types/posts-query.types";
 import { handleError } from "../utils/utils";
@@ -11,11 +12,6 @@ import { handleError } from "../utils/utils";
 type PostsPageProps = {};
 
 const PostsPage = ({}: PostsPageProps) => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [pagination, setPagination] = useState<PaginationResponseMeta | null>(
-    null,
-  );
-
   const [searchParams] = useSearchParams();
 
   const q = searchParams.get("q") ?? undefined;
@@ -24,25 +20,25 @@ const PostsPage = ({}: PostsPageProps) => {
   const sortBy = searchParams.get("sortBy") ?? undefined;
   const order = searchParams.get("order") ?? undefined;
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await findAllPosts({
-          q: q ? q.trim() : undefined,
-          page: page ? Number(page) : undefined,
-          limit: limit ? Number(limit) : undefined,
-          sortBy: sortBy as "title" | "createdAt" | "likes" | "comments",
-          order: order as "asc" | "desc",
-        });
-        setPosts(data.items);
-        setPagination(data.meta);
-      } catch (err) {
-        handleError(err);
-      }
-    };
+  const { data, isLoading, isError, error } = useFindAllPosts({
+    q: q?.trim(),
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+    sortBy: sortBy as "title" | "createdAt" | "likes" | "comments",
+    order: order as "asc" | "desc",
+  });
 
-    fetchPosts();
-  }, [searchParams]);
+  const posts: Post[] = data?.items ?? [];
+  const pagination: PaginationResponseMeta | null = data?.meta ?? null;
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <section className="px-2">

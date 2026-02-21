@@ -9,14 +9,14 @@ import { api } from "./api.config";
 const PREFIX_RESOURCE = "posts";
 
 export const createPost = async (
-  createPostDto: CreatePostDto
+  createPostDto: CreatePostDto,
 ): Promise<Post> => {
   const { data } = await api.post(`/${PREFIX_RESOURCE}`, createPostDto);
   return data;
 };
 
 export const findAllPosts = async (
-  query?: PostsQueryDto
+  query?: PostsQueryDto,
 ): Promise<PostsQueryResponse<Post>> => {
   const { data } = await api.get(`/${PREFIX_RESOURCE}`, {
     params: query,
@@ -31,11 +31,11 @@ export const findPost = async (postId: number): Promise<Post> => {
 
 export const updatePost = async (
   postId: number,
-  updatePostDto: UpdatePostDto
+  updatePostDto: UpdatePostDto,
 ): Promise<Post> => {
   const { data } = await api.patch(
     `/${PREFIX_RESOURCE}/${postId}`,
-    updatePostDto
+    updatePostDto,
   );
   return data;
 };
@@ -52,28 +52,54 @@ export const toggleLikePost = async (postId: number): Promise<Post> => {
 
 export const createPostComment = async (
   postId: number,
-  createPostCommentDto: CreatePostCommentDto
+  createPostCommentDto: CreatePostCommentDto,
 ): Promise<PostComment> => {
   const { data } = await api.post(
     `/${PREFIX_RESOURCE}/${postId}/comments`,
-    createPostCommentDto
+    createPostCommentDto,
   );
   return data;
 };
 
-export const findAllPostComments = async (
-  postId: number
-): Promise<PostComment[]> => {
+export const findAllRootComments = async (
+  postId: number,
+): Promise<
+  (PostComment & {
+    user: {
+      id: number;
+      email: string;
+      avatarUrl?: string;
+    };
+  })[]
+> => {
   const { data } = await api.get(`/${PREFIX_RESOURCE}/${postId}/comments`);
+  return data;
+};
+
+export const findAllCommentReplies = async (
+  postId: number,
+  commentId: number,
+): Promise<
+  (PostComment & {
+    user: {
+      id: number;
+      email: string;
+      avatarUrl?: string;
+    };
+  })[]
+> => {
+  const { data } = await api.get(
+    `/${PREFIX_RESOURCE}/${postId}/comments/${commentId}/replies`,
+  );
   return data;
 };
 
 export const toggleLikeComment = async (
   postId: number,
-  commentId: number
+  commentId: number,
 ): Promise<PostComment> => {
   const { data } = await api.post(
-    `/${PREFIX_RESOURCE}/${postId}/comments/${commentId}/likes`
+    `/${PREFIX_RESOURCE}/${postId}/comments/${commentId}/likes`,
   );
   return data;
 };

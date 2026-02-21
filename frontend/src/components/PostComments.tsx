@@ -1,36 +1,31 @@
 import { MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createPostComment, findAllPostComments } from "../api/posts.api";
+import { useCreatePostComment } from "../features/posts/posts.mutations";
+import { useFetchAllPostComments } from "../features/posts/posts.queries";
 import { useAuth } from "../hooks/useAuth.hook";
-import type { PostComment } from "../types/post-comment";
 import type { Post } from "../types/post.types";
 import { handleError } from "../utils/utils";
 import CommentsList from "./CommentsList";
+import ErrorFallback from "./ErrorFallback";
+import Spinner from "./Spinner";
 
 type PostCommentsProps = { post: Post };
 
 const PostComments = ({ post }: PostCommentsProps) => {
-  const [comments, setComments] = useState<PostComment[]>([]);
-
   const { auth } = useAuth();
   const user = auth?.user;
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchAllPostComments = async () => {
-      try {
-        const data = await findAllPostComments(post.id);
-        setComments(data);
-      } catch (err) {
-        handleError(err);
-      }
-    };
+  const {
+    data: comments,
+    isLoading,
+    isError,
+    error,
+  } = useFetchAllPostComments(post.id);
 
-    fetchAllPostComments();
-  }, []);
+  const { mutate: createPostCommentMutation } = useCreatePostComment();
 
   const handlePostNewComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,15 +39,30 @@ const PostComments = ({ post }: PostCommentsProps) => {
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    try {
-      const data = await createPostComment(post.id, {
-        content: formData.get("new-comment") as string,
-      });
-      setComments((prev) => [...prev, data]);
-    } catch (err) {
-      handleError(err);
-    }
+    createPostCommentMutation(
+      {
+        postId: post.id,
+        createPostCommentDto: {
+          content: formData.get("new-comment") as string,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Comment submitted successfully!");
+          form.reset();
+        },
+      },
+    );
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    handleError(error);
+    return <ErrorFallback error={error} />;
+  }
 
   return (
     <div>
@@ -76,8 +86,8 @@ const PostComments = ({ post }: PostCommentsProps) => {
         </button>
       </form>
 
-      {comments.length ? (
-        <CommentsList comments={comments} setComments={setComments} />
+      {comments?.length ? (
+        <CommentsList comments={comments} postId={post.id} />
       ) : (
         <p className="text-gray-400 text-center">
           No comments yet. Be the first to comment!
