@@ -1,9 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { loginUser, registerUser } from "../../api/auth.api";
+import {
+  forgotPassword,
+  loginUser,
+  registerUser,
+  resetPassword,
+} from "../../api/auth.api";
 import { useAuth } from "../../hooks/useAuth.hook";
-import type { AuthResponse } from "../../types/auth-response.types";
+import type {
+  AuthResponse,
+  ForgotPassword,
+  ResetPasswordRequest,
+} from "../../types/auth.types";
 import type { CreateUser, LoginUser } from "../../types/user.types";
 import { handleError } from "../../utils/utils";
 import { usersKeys } from "../users/users.keys";
@@ -49,13 +58,34 @@ export const useLoginUser = () => {
       if (location.state?.from === "/register") {
         navigate("/");
       } else {
-        navigate(-1);
+        navigate("/profile");
       }
 
       queryClient.invalidateQueries({
         queryKey: usersKeys.details(data.data?.user.id!),
       });
     },
+    onError: (err) => handleError(err),
+  });
+};
+
+export const useForgotPassword = () =>
+  useMutation({
+    mutationFn: (forgotPasswordDto: ForgotPassword) =>
+      forgotPassword(forgotPasswordDto),
+    onError: (err) => handleError(err),
+  });
+
+export const useResetPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (resetPasswordRequestDto: ResetPasswordRequest) =>
+      resetPassword(resetPasswordRequestDto),
+    onSuccess: ({ userId, message }: { userId: number; message: string }) =>
+      queryClient.invalidateQueries({
+        queryKey: usersKeys.details(userId),
+      }),
     onError: (err) => handleError(err),
   });
 };

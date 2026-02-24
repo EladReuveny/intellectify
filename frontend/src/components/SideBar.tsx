@@ -50,7 +50,7 @@ const SideBar = ({ dialogRef }: SideBarProps) => {
   return (
     <dialog
       ref={dialogRef}
-      className="absolute top-0 left-0 w-1/3 h-screen overflow-y-auto p-4 
+      className="fixed top-0 left-0 w-1/3 min-h-screen p-4 flex flex-col
       backdrop:backdrop-brightness-50 backdrop:backdrop-blur bg-(--bg-clr) text-(--text-clr)
       -translate-x-full opacity-0 transition-all duration-300 ease-in-out
       open:translate-x-0 open:opacity-100"
@@ -66,7 +66,7 @@ const SideBar = ({ dialogRef }: SideBarProps) => {
         <Logo />
       </div>
 
-      <div className="space-y-4 mt-6">
+      <div className="space-y-4 mt-6 flex-1 overflow-y-auto">
         <div>
           <NavLink
             to="/following"

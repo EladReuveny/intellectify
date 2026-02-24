@@ -2,6 +2,8 @@ import { Microservice } from '@app/common/constants/microservices';
 import { AuthPattern } from '@app/common/constants/patterns/auth.pattern';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { ForgotPasswordDto } from 'apps/auth-service/src/dto/forgot-password.dto';
+import { ResetPasswordRequestDto } from 'apps/auth-service/src/dto/reset-password-request.dto';
 import { CreateUserDto } from '../../../auth-service/src/dto/create-user.dto';
 import { LoginUserDto } from '../../../auth-service/src/dto/login-user.dto';
 
@@ -17,5 +19,19 @@ export class AuthService {
 
   login(loginUserDto: LoginUserDto) {
     return this.authClient.send(AuthPattern.commands.LOGIN, loginUserDto);
+  }
+
+  forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    return this.authClient.emit(
+      AuthPattern.commands.FORGOT_PASSWORD,
+      forgotPasswordDto,
+    );
+  }
+
+  resetPassword(resetPasswordRequestDto: ResetPasswordRequestDto) {
+    return this.authClient.send(
+      AuthPattern.commands.RESET_PASSWORD,
+      resetPasswordRequestDto,
+    );
   }
 }

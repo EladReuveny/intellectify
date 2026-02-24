@@ -1,6 +1,6 @@
 # 🚀 Intellectify — Full Stack Social Media Platform
 
-A scalable full-stack social media application built with **React + TypeScript + Vite** on the frontend and **NestJS microservices** on the backend.
+A scalable **microservices-based** full-stack social media application built with **React + TypeScript + Vite** on the frontend and **NestJS microservices** on the backend.
 
 ---
 
@@ -9,6 +9,7 @@ A scalable full-stack social media application built with **React + TypeScript +
 <nav>
 
 • <a href="#architecture">Full Stack Architecture</a>  
+• <a href="#project-structure">Project Structure</a>  
 • <a href="#frontend">Frontend Overview</a>  
 • <a href="#backend">Backend Overview</a>  
 • <a href="#features">Features</a>  
@@ -36,13 +37,16 @@ Frontend (React) → API Gateway → Microservices → PostgreSQL
 
 <h3>Service Architecture</h3>
 
-| Service       | Port | Responsibility                        |
-| ------------- | ---- | ------------------------------------- |
-| API Gateway   | 3000 | Central entry point for all requests  |
-| Auth Service  | 3001 | Authentication & JWT token management |
-| Users Service | 3002 | User profiles & follow relationships  |
-| Posts Service | 3003 | Posts, likes, comments management     |
-| PostgreSQL    | 5432 | Data persistence                      |
+| Service       | Port        | Responsibility                                    |
+| ------------- | ----------- | ------------------------------------------------- |
+| API Gateway   | 3000        | Central entry point for all requests              |
+| Auth Service  | 3001        | Authentication & JWT token management             |
+| Users Service | 3002        | User profiles & follow relationships              |
+| Posts Service | 3003        | Posts, likes, comments management                 |
+| Mail Service  | 3004        | SMTP relay & email service (connects to Mailtrap) |
+| PostgreSQL    | 5432        | Data persistence                                  |
+| RabbitMQ      | 5672, 15672 | 5672 → Message queue & event bus                  |
+|               |             | 15672 → Management UI                             |
 
 **Components:**
 
@@ -51,6 +55,32 @@ Frontend (React) → API Gateway → Microservices → PostgreSQL
 - **Communication**: Axios HTTP client for API requests
 - **Database**: PostgreSQL for reliable data storage
 - **Deployment**: Docker containerized services with Docker Compose
+
+---
+
+---
+
+<h2 id="project-structure">📂 Project Structure</h2>
+
+The repository is organized using a microservices-based structure with clear separation between frontend and backend services.
+
+intellectify/
+│
+├─ frontend/
+│ ├─ src/
+│ ├─ public/
+│ └─ vite.config.ts
+│
+├─ backend/
+│ ├─ api-gateway/
+│ ├─ auth-service/
+│ ├─ users-service/
+│ ├─ posts-service/
+│ ├─ mail-service/
+│ ├─ docker-compose.yml
+│  
+│
+└─ README.md
 
 ---
 
@@ -88,6 +118,9 @@ A scalable NestJS backend with microservices architecture.
 | **PostgreSQL**     | Relational database               |
 | **TypeORM**        | Object-Relational Mapping         |
 | **JWT**            | Secure token-based authentication |
+| **RabbitMQ**       | Message broker for microservices  |
+| **Nodemailer**     | SMTP (Protocol) email delivery    |
+| **Mailtrap**       | Email testing & delivery service  |
 | **Docker**         | Container virtualization          |
 | **Docker Compose** | Multi-container orchestration     |
 
@@ -97,6 +130,14 @@ A scalable NestJS backend with microservices architecture.
 - **Auth Service** - Handles user registration, login, JWT token generation
 - **Users Service** - Manages user profiles, follow relationships, user stats
 - **Posts Service** - Manages posts, likes, comments, post queries
+- **Mail Service** - Handles transactional emails (password reset, verification, notifications)
+
+<h3>Microservice Communication</h3>
+
+Intellectify uses two communication patterns:
+
+• **HTTP (REST)** – Client → API Gateway → Services  
+• **Event-driven (RabbitMQ)** – Inter-service communication
 
 ---
 
@@ -108,6 +149,8 @@ A scalable NestJS backend with microservices architecture.
 - Protected routes for authenticated users only
 - Role-based access control (Admin/User)
 - Account settings and password management
+- Secure password reset via email with JWT tokens
+- Email verification through Mailtrap SMTP
 
 <h3>Posts Management</h3>
 - Create, edit, and delete posts with images
@@ -229,12 +272,22 @@ DB_NAME=intellectify
 # JWT
 JWT_SECRET=your-secret-key-here
 JWT_EXPIRATION=24h
+JWT_RESET_TOKEN_SECRET=your-reset-token-secret-key-here
+JWT_RESET_TOKEN_EXPIRATION=15m
+
+# Email Configuration (SMTP Protocol - Provider: Mailtrap)
+MAIL_FROM=no-reply@intellectify.com
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=25
+SMTP_USER=your-mailtrap-username
+SMTP_PASS=your-mailtrap-password
 
 # Services
 API_GATEWAY_PORT=3000
 AUTH_SERVICE_PORT=3001
-POSTS_SERVICE_PORT=3002
-USERS_SERVICE_PORT=3003
+USERS_SERVICE_PORT=3002
+POSTS_SERVICE_PORT=3003
+MAIL_SERVICE_PORT=3004
 
 # Node Environment
 NODE_ENV=dev
@@ -242,17 +295,24 @@ NODE_ENV=dev
 
 <h3>Environment Variables Explained</h3>
 
-| Variable         | Purpose                   | Example                        |
-| ---------------- | ------------------------- | ------------------------------ |
-| `VITE_API_URL`   | Frontend API endpoint     | `http://localhost:3000/api/v1` |
-| `DB_HOST`        | Database hostname         | `localhost` or container name  |
-| `DB_PORT`        | PostgreSQL port           | `5432`                         |
-| `DB_USERNAME`    | Database user             | `postgres`                     |
-| `DB_PASSWORD`    | Database password         | Secure password                |
-| `DB_NAME`        | Database name             | `intellectify`                 |
-| `JWT_SECRET`     | Secret key for JWT tokens | Random string (min 32 chars)   |
-| `JWT_EXPIRATION` | Token expiration time     | `24h` or `7d`                  |
-| `NODE_ENV`       | Environment mode          | `dev` or `prod`                |
+| Variable                     | Purpose                         | Example                        |
+| ---------------------------- | ------------------------------- | ------------------------------ |
+| `VITE_API_URL`               | Frontend API endpoint           | `http://localhost:3000/api/v1` |
+| `DB_HOST`                    | Database hostname               | `localhost` or container name  |
+| `DB_PORT`                    | PostgreSQL port                 | `5432`                         |
+| `DB_USERNAME`                | Database user                   | `postgres`                     |
+| `DB_PASSWORD`                | Database password               | Secure password                |
+| `DB_NAME`                    | Database name                   | `intellectify`                 |
+| `JWT_SECRET`                 | Secret key for JWT tokens       | Random string (min 32 chars)   |
+| `JWT_EXPIRATION`             | Token expiration time           | `24h` or `7d`                  |
+| `JWT_RESET_TOKEN_SECRET`     | Secret key for JWT reset tokens | Random string (min 32 chars)   |
+| `JWT_RESET_TOKEN_EXPIRATION` | Password reset token expiration | `15m` or `30m`                 |
+| `MAIL_FROM`                  | Email sender address            | `no-reply@intellectify.com`    |
+| `SMTP_HOST`                  | SMTP server hostname            | `smtp.mailtrap.io`             |
+| `SMTP_PORT`                  | SMTP server port                | `25`                           |
+| `SMTP_USER`                  | Mailtrap/SMTP username          | Your Mailtrap account username |
+| `SMTP_PASS`                  | Mailtrap/SMTP password          | Your Mailtrap API token        |
+| `NODE_ENV`                   | Environment mode                | `dev` or `prod`                |
 
 ---
 
@@ -269,11 +329,11 @@ NODE_ENV=dev
 │  │   API Gateway (Port 3000)    │   │
 │  └────────────┬─────────────────┘   │
 │               │                      │
-│  ┌────────┬───┴─────┬
-│  │        │         │             │
-│  ▼        ▼         ▼             │
-│  Auth   Posts    Users
-│  3001   3002     3003
+│  ┌────────┬───┴─────┬────────┬
+│  │        │         │        │       │
+│  ▼        ▼         ▼        ▼       │
+│  Auth   Users    Posts      Mail
+│  3001   3002     3003       3004
 │                                      │
 │  ┌──────────────────────────────┐   │
 │  │   PostgreSQL (Port 5432)     │   │
@@ -284,13 +344,14 @@ NODE_ENV=dev
 
 <h3>Docker Services</h3>
 
-| Service       | Port | Purpose          | Status       |
-| ------------- | ---- | ---------------- | ------------ |
-| api-gateway   | 3000 | Main entry point | Required     |
-| auth-service  | 3001 | Authentication   | Microservice |
-| posts-service | 3002 | Post management  | Microservice |
-| users-service | 3003 | User management  | Microservice |
-| postgres      | 5432 | Database         | Required     |
+| Service       | Port | Purpose                   | Status       |
+| ------------- | ---- | ------------------------- | ------------ |
+| api-gateway   | 3000 | Main entry point          | Required     |
+| auth-service  | 3001 | Authentication            | Microservice |
+| users-service | 3002 | User management           | Microservice |
+| posts-service | 3003 | Post management           | Microservice |
+| mail-service  | 3004 | Mail service (SMTP relay) | Microservice |
+| postgres      | 5432 | Database                  | Required     |
 
 <h3>Docker Compose Commands</h3>
 
@@ -388,6 +449,21 @@ npm run test
 4. Axios interceptor attaches token to requests
 5. Protected routes validate token
 
+<h3>Password Reset Flow</h3>
+
+1. User requests password reset with email
+2. Auth Service generates JWT reset token (15 minutes expiration)
+3. Reset link with token sent via Mailtrap SMTP
+4. User clicks link and submits new password
+5. Token validated and password updated in database
+6. Confirmation email sent to user
+
+**Security Features:**
+
+- Reset tokens expire after 15 minutes
+- Email verification prevents unauthorized password resets
+- Secure SMTP connection via Mailtrap
+
 ---
 
 <h2 id="api-docs">📚 API Documentation</h2>
@@ -411,6 +487,6 @@ http://localhost:3000/api/v1
 
 <h2 id="license">📝 License</h2>
 
-This project is open source.
+This project is licensed under the **MIT License**.
 
 ---

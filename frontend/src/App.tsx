@@ -5,6 +5,7 @@ import BookmarkDetails from "./components/BookmarkDetails";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import FollowingPage from "./pages/FollowingPage";
+import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import LikedPosts from "./pages/LikedPosts";
 import Login from "./pages/Login";
@@ -13,6 +14,7 @@ import PostsPage from "./pages/PostsPage";
 import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
 import UserBookmarks from "./pages/UserBookmarks";
 import UserPosts from "./pages/UserPosts";
 import UsersManagement from "./pages/UsersManagement";
@@ -33,6 +35,14 @@ const App = ({}: AppProps) => {
     {
       path: "/register",
       element: <Register />,
+    },
+    {
+      path: "/forgot-password",
+      element: <ForgotPassword />,
+    },
+    {
+      path: "/reset-password",
+      element: <ResetPassword />,
     },
     {
       path: "/profile",

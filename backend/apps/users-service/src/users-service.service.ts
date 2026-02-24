@@ -17,6 +17,8 @@ import { Role } from './enums/role.enum';
 export class UsersServiceService {
   private SALT = 10;
   private adminSecret: string;
+  private resetTokenExpiration: string;
+  private resetTokenSecret: string;
 
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
@@ -24,6 +26,14 @@ export class UsersServiceService {
     private readonly jwtService: JwtService,
   ) {
     this.adminSecret = configService.get<string>('ADMIN_SECRET', '');
+    this.resetTokenExpiration = configService.get<string>(
+      'JWT_RESET_TOKEN_EXPIRATION',
+      '15m',
+    );
+    this.resetTokenSecret = configService.get<string>(
+      'JWT_RESET_TOKEN_SECRET',
+      '',
+    );
   }
 
   async findAll() {
@@ -45,6 +55,21 @@ export class UsersServiceService {
       throw new RpcException({
         statusCode: HttpStatus.NOT_FOUND,
         message: `User with id ${id} not found`,
+      });
+    }
+
+    return user;
+  }
+
+  async findOneByEmail(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `User with email ${email} not found`,
       });
     }
 
@@ -236,6 +261,31 @@ export class UsersServiceService {
     return await this.jwtService.signAsync(payload);
   }
 
+  async generateResetPasswordToken(userId: number) {
+    const payload = {
+      sub: userId,
+      tokenType: 'password-reset',
+    };
+
+    return await this.jwtService.signAsync(payload, {
+      expiresIn: this.resetTokenExpiration as any,
+      secret: this.resetTokenSecret,
+    });
+  }
+
+  async handleResetPassword(userId: number, newPassword: string) {
+    const user = await this.findOne(userId);
+
+    const hashedPassword = await this.hashPassword(newPassword);
+    user.password = hashedPassword;
+
+    await this.usersRepository.save(user);
+
+    return {
+      userEmail: user.email,
+    };
+  }
+
   async followUser(followerId: number, followedId: number) {
     const followerUser = await this.usersRepository.findOne({
       where: { id: followerId },
@@ -260,7 +310,7 @@ export class UsersServiceService {
 
     if (!followerUser || !followingUser) {
       throw new RpcException({
-        statusCode: 404,
+        statusCode: HttpStatus.NOT_FOUND,
         message: 'One of the users not found',
       });
     }
@@ -279,7 +329,10 @@ export class UsersServiceService {
     });
 
     if (!followerUser) {
-      throw new RpcException({ statusCode: 404, message: 'User not found' });
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `User with id ${followerId} not found`,
+      });
     }
 
     followerUser.following = followerUser?.following.filter(

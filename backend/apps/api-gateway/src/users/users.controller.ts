@@ -90,6 +90,7 @@ export class UsersController {
   }
 
   @Get(':userId/posts')
+  @Public()
   @ApiOperation({
     summary: 'Get user posts',
     description: 'Retrieve all posts created by a specific user',
