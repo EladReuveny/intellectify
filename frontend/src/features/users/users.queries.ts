@@ -29,11 +29,14 @@ export const useFindUserLikedPosts = (userId: number) =>
     enabled: !!userId,
   });
 
-export const useFindUserBookmarks = (userId: number) =>
+export const useFindUserBookmarks = (
+  userId: number,
+  options?: { enabled?: boolean },
+) =>
   useQuery({
     queryKey: usersKeys.bookmarks(userId),
     queryFn: () => findUserBookmarks(userId),
-    enabled: !!userId,
+    enabled: options?.enabled,
   });
 
 export const useGetUserStats = (userId: number) =>

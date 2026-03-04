@@ -57,7 +57,7 @@ const UserBookmarks = ({}: UserBookmarksProps) => {
       {bookmarks?.length === 0 && (
         <div className="text-center mb-2">
           <h2 className="font-bold text-2xl mb-1">No bookmarks found</h2>
-          <p className="text-gray-400">
+          <p className="text-(--text-clr)/60">
             Create a new bookmark and adding posts.
           </p>
         </div>

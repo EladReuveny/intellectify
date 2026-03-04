@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCreatePostComment } from "../features/posts/posts.mutations";
-import { useFetchAllPostComments } from "../features/posts/posts.queries";
+import { useFetchAllRootComments } from "../features/posts/posts.queries";
 import { useAuth } from "../hooks/useAuth.hook";
 import type { Post } from "../types/post.types";
 import { handleError } from "../utils/utils";
@@ -23,7 +23,7 @@ const PostComments = ({ post }: PostCommentsProps) => {
     isLoading,
     isError,
     error,
-  } = useFetchAllPostComments(post.id);
+  } = useFetchAllRootComments(post.id);
 
   const { mutate: createPostCommentMutation } = useCreatePostComment();
 
@@ -76,7 +76,7 @@ const PostComments = ({ post }: PostCommentsProps) => {
           id="new-comment"
           required
           placeholder="Write a comment here..."
-          className="outline-none resize-y mb-1 p-2 w-full border border-gray-400 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
+          className="outline-none resize-y mb-1 p-2 w-full border border-(--text-clr)/60 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
         ></textarea>
         <button
           type="submit"
@@ -89,7 +89,7 @@ const PostComments = ({ post }: PostCommentsProps) => {
       {comments?.length ? (
         <CommentsList comments={comments} postId={post.id} />
       ) : (
-        <p className="text-gray-400 text-center">
+        <p className="text-(--text-clr)/60 text-center">
           No comments yet. Be the first to comment!
         </p>
       )}

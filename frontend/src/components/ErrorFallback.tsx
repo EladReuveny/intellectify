@@ -19,7 +19,7 @@ const ErrorFallback = ({
 
       <div className="mt-4 text-center">
         <h1 className="text-3xl font-bold mb-2">{title}</h1>
-        <p className="text-gray-400">{error?.message}</p>
+        <p className="text-(--text-clr)/60">{error?.message}</p>
       </div>
 
       <Link
@@ -31,7 +31,7 @@ const ErrorFallback = ({
       </Link>
 
       <div className="mt-6 p-4 rounded-lg border border-(--text-clr)/25">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-(--text-clr)/60">
           If this problem persists, please contact support or check your
           internet connection.
         </p>

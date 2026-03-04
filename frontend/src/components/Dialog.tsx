@@ -16,7 +16,7 @@ const Dialog = ({ children, dialogRef, title }: DialogProps) => {
   return (
     <dialog
       ref={dialogRef}
-      className="fixed top-1/2 left-1/2 -translate-1/2 py-2 px-4 w-screen h-screen bg-(--bg-clr) text-(--text-clr) rounded-md shadow-lg backdrop:backdrop-blur-md border border-gray-400"
+      className="fixed top-1/2 left-1/2 -translate-1/2 py-2 px-4 w-screen h-screen bg-(--bg-clr) text-(--text-clr) rounded-md shadow-lg backdrop:backdrop-blur-md border border-(--text-clr)/60"
     >
       <button
         type="button"

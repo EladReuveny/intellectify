@@ -14,4 +14,4 @@ RUN npm run build
 
 EXPOSE 3004
 
-CMD ["npm", "run", "start:mail:dev"]
+CMD ["npm", "run", "start:mail:prod"]

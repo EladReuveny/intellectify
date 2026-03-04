@@ -94,7 +94,7 @@ const PublicProfile = ({}: PublicProfileProps) => {
           <h3 className="font-bold text-2xl">
             @{publicUser?.email.split("@")[0]}
           </h3>
-          <div className="flex items-center gap-1.5 text-gray-400">
+          <div className="flex items-center gap-1.5 text-(--text-clr)/60">
             <span>{posts?.length} posts</span>
             <span>•</span>
             <span>{publicUser?.followers?.length ?? 0} followers</span>
@@ -113,7 +113,7 @@ const PublicProfile = ({}: PublicProfileProps) => {
             onClick={toggleFollowUser}
             className={`px-4 py-1 text-sm rounded-full mt-2 flex items-center gap-2 ${
               isCurrentUserFollowingUser
-                ? "text-gray-400 border border-gray-400 hover:bg-(--text-clr)/15"
+                ? "text-(--text-clr)/60 border border-(--text-clr)/60 hover:bg-(--text-clr)/15"
                 : "bg-(--text-clr) text-(--bg-clr) hover:brightness-90"
             }`}
           >
@@ -135,7 +135,7 @@ const PublicProfile = ({}: PublicProfileProps) => {
       ) : (
         <div className="text-center py-12">
           <h2 className="font-bold text-2xl mb-1">No posts found</h2>
-          <p className="text-gray-400">
+          <p className="text-(--text-clr)/60">
             This user hasn't created any posts yet.
           </p>
         </div>

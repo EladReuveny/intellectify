@@ -40,7 +40,7 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
           <div className="relative">
             <Type
               size={22}
-              className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
+              className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
             />
             <input
               type="text"
@@ -48,7 +48,7 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
               name="title"
               placeholder=""
               required
-              className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
             />
             <label
               htmlFor="title"
@@ -66,7 +66,7 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
           <button
             type="reset"
             onClick={closeDialog}
-            className="flex items-center gap-2 py-2 px-3 text-gray-400 border border-gray-400 rounded-md hover:bg-(--text-clr)/15"
+            className="flex items-center gap-2 py-2 px-3 text-(--text-clr)/60 border border-(--text-clr)/60 rounded-md hover:bg-(--text-clr)/15"
           >
             <X size={24} /> Cancel
           </button>

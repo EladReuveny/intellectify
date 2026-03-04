@@ -1,18 +1,22 @@
+import { useAtom } from "jotai";
 import {
   ArrowDown,
   CircleUserRound,
   LogIn,
   LogOut,
   MenuIcon,
+  Moon,
   Search,
   SlidersHorizontal,
   SquarePen,
+  Sun,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
+import { themeAtom } from "../store/theme.atom";
 import { handleError } from "../utils/utils";
 import CreatePostDialog from "./CreatePostDialog";
 import Dialog from "./Dialog";
@@ -20,10 +24,25 @@ import ErrorFallback from "./ErrorFallback";
 import Logo from "./Logo";
 import SideBar from "./SideBar";
 import Spinner from "./Spinner";
+import ToggleSwitch from "./ToggleSwitch";
 import UserAvatar from "./UserAvatar";
 
 const NavBar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const [theme, setTheme] = useAtom(themeAtom);
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+    document.documentElement.style.setProperty(
+      "--bg-clr",
+      theme === "dark" ? "hsl(0, 0%, 0%)" : "hsl(0, 0%, 100%)",
+    );
+    document.documentElement.style.setProperty(
+      "--text-clr",
+      theme === "dark" ? "hsl(0, 0%, 100%)" : "hsl(0, 0%, 0%)",
+    );
+  }, [theme]);
 
   const { auth, logout } = useAuth();
   const userId = auth?.user?.id;
@@ -105,13 +124,13 @@ const NavBar = () => {
     <nav className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <button type="button" title="Open Sidebar" onClick={openSideBarDialog}>
-          <MenuIcon className="w-6 h-6 text-gray-400 hover:text-(--text-clr)" />
+          <MenuIcon className="w-6 h-6 text-(--text-clr)/60 hover:text-(--text-clr)" />
         </button>
         <Logo />
       </div>
 
       <button type="button" title="Search" onClick={openSearchDialog}>
-        <Search className="text-gray-400 hover:text-(--text-clr)" />
+        <Search className="text-(--text-clr)/60 hover:text-(--text-clr)" />
       </button>
 
       <div className="flex items-center gap-3">
@@ -137,22 +156,35 @@ const NavBar = () => {
             )}
 
             {isUserMenuOpen && (
-              <div className="absolute top-12 right-0 w-48 space-y-2 bg-(--bg-clr) border border-gray-400 rounded-md shadow-lg p-3">
+              <div className="absolute top-12 right-0 w-48 space-y-2 bg-(--bg-clr) border border-(--text-clr)/60 rounded-md shadow-lg p-3">
                 <Link
                   to="/profile"
                   onClick={() => setIsUserMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded hover:bg-(--text-clr)/20"
                 >
-                  <CircleUserRound /> Profile
+                  <CircleUserRound size={28} /> Profile
                 </Link>
 
-                <hr />
+                <hr className="text-(--text-clr)/40" />
+
+                <ToggleSwitch
+                  id="theme"
+                  name="theme"
+                  label="Theme"
+                  value={theme}
+                  activeValue="dark"
+                  inactiveValue="light"
+                  onToggle={setTheme}
+                  icons={{ on: <Sun />, off: <Moon /> }}
+                />
+
+                <hr className="text-(--text-clr)/40" />
 
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 w-full px-3 py-2 rounded text-red-500 hover:bg-red-500/20"
                 >
-                  <LogOut /> Sign Out
+                  <LogOut size={28} /> Sign Out
                 </button>
               </div>
             )}
@@ -175,7 +207,7 @@ const NavBar = () => {
           <div className="relative mb-4">
             <Search
               size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-(--text-clr)/60"
             />
 
             <input
@@ -183,7 +215,7 @@ const NavBar = () => {
               id="searchQuery"
               name="searchQuery"
               placeholder="Search posts..."
-              className="w-full py-2 px-10 rounded-full border border-gray-400 hover:border-(--text-clr) focus:border-(--text-clr) focus:outline-none"
+              className="w-full py-2 px-10 rounded-full border border-(--text-clr)/60 hover:border-(--text-clr) focus:border-(--text-clr) focus:outline-none"
             />
 
             <button
@@ -208,7 +240,7 @@ const NavBar = () => {
                 <select
                   name="sortByQuery"
                   defaultValue={sortByOptions[0].value}
-                  className="py-2 px-3 bg-(--bg-clr) text-(--text-clr) border border-gray-400 rounded hover:border-(--text-clr) focus:outline-none"
+                  className="py-2 px-3 bg-(--bg-clr) text-(--text-clr) border border-(--text-clr)/60 rounded hover:border-(--text-clr) focus:outline-none"
                 >
                   {sortByOptions.map(({ value, label }) => (
                     <option key={value} value={value}>

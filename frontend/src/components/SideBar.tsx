@@ -61,7 +61,7 @@ const SideBar = ({ dialogRef }: SideBarProps) => {
           title="Close Sidebar"
           onClick={closeSideBarDialog}
         >
-          <MenuIcon className="w-6 h-6 text-gray-400 cursor-pointer hover:text-(--text-clr) rounded-md" />
+          <MenuIcon className="w-6 h-6 text-(--text-clr)/60 cursor-pointer hover:text-(--text-clr) rounded-md" />
         </button>
         <Logo />
       </div>

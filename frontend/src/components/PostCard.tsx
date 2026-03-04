@@ -117,7 +117,9 @@ const PostCard = ({
         key={post.id}
         className="relative group rounded-lg border border-(--text-clr)/35 shadow-lg px-2 flex flex-col md:flex-row gap-4 hover:bg-(--text-clr)/15"
       >
-        <span className="text-xs text-gray-400 self-center">{index + 1}</span>
+        <span className="text-xs text-(--text-clr)/60 self-center">
+          {index + 1}
+        </span>
 
         <img
           src={post.imageUrl || undefined}
@@ -132,7 +134,7 @@ const PostCard = ({
             <div className="flex items-center gap-3">
               <div
                 title="Created at"
-                className="flex items-center gap-1 text-sm text-gray-400"
+                className="flex items-center gap-1 text-sm text-(--text-clr)/60"
               >
                 <Calendar size={20} />{" "}
                 {new Date(post.createdAt).toLocaleDateString("en-US", {
@@ -143,7 +145,7 @@ const PostCard = ({
               </div>
               <div
                 title={`${post?.likes?.length} Likes`}
-                className="flex items-center gap-1 text-sm text-gray-400"
+                className="flex items-center gap-1 text-sm text-(--text-clr)/60"
               >
                 <ThumbsUp size={20} /> {post?.likes?.length}
               </div>
@@ -152,7 +154,7 @@ const PostCard = ({
             <div
               title="More"
               onClick={(e) => toggleMoreOptions(e)}
-              className="relative text-sm text-gray-400 hover:text-(--text-clr)"
+              className="relative text-sm text-(--text-clr)/60 hover:text-(--text-clr)"
             >
               <CircleEllipsis size={24} />
 

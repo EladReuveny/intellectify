@@ -25,7 +25,7 @@ const UserListItem = ({ user, onUnfollow }: UserListItemProps) => {
           <div>
             <h3 className="font-bold text-xl">{user.email.split("@")[0]}</h3>
 
-            <div className="flex items-center gap-1.5 text-gray-400 text-sm">
+            <div className="flex items-center gap-1.5 text-(--text-clr)/60 text-sm">
               <span>{user.followers?.length ?? 0} followers</span>
               <span>•</span>
               <span>

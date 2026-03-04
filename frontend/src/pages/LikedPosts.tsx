@@ -48,7 +48,9 @@ const LikedPosts = ({}: LikedPostsProps) => {
       {likes?.length === 0 ? (
         <div className="text-center">
           <h2 className="font-bold text-2xl mb-1">Empty liked post list</h2>
-          <p className="text-gray-400">You have not liked any posts yet.</p>
+          <p className="text-(--text-clr)/60">
+            You have not liked any posts yet.
+          </p>
         </div>
       ) : (
         <PostsList posts={likes?.map((like) => like.post) ?? []} />

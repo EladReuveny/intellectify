@@ -1,13 +1,11 @@
 import { BookmarkPlus, Folder } from "lucide-react";
-import { useEffect, useRef, type RefObject } from "react";
-import { toast } from "react-toastify";
+import { useRef, type RefObject } from "react";
 import { useFindUserBookmarks } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
 import { handleError } from "../utils/utils";
 import BookmarksList from "./BookmarksList";
 import CreateBookmarkDialog from "./CreateBookmarkDialog";
 import Dialog from "./Dialog";
-import ErrorFallback from "./ErrorFallback";
 import Spinner from "./Spinner";
 
 type AddPostToBookmarkDialogProps = {
@@ -22,19 +20,14 @@ const AddPostToBookmarkDialog = ({
 
   const createBookmarkDialog = useRef<HTMLDialogElement | null>(null);
 
-  useEffect(() => {
-    if (!user && dialogRef?.current?.open) {
-      toast.info("Please sign in first to access your bookmarks");
-      return;
-    }
-  }, []);
-
   const {
     data: bookmarks,
     isLoading,
     isError,
     error,
-  } = useFindUserBookmarks(user?.id!);
+  } = useFindUserBookmarks(user?.id!, {
+    enabled: !!user?.id && !!dialogRef.current?.open,
+  });
 
   const openCreateBookmarkDialog = () => {
     createBookmarkDialog.current?.showModal();
@@ -47,7 +40,7 @@ const AddPostToBookmarkDialog = ({
   if (isError) {
     dialogRef.current?.close();
     handleError(error);
-    return <ErrorFallback error={error} />;
+    return;
   }
 
   return (
@@ -66,11 +59,11 @@ const AddPostToBookmarkDialog = ({
       ) : (
         <div className="py-10 text-center flex flex-col items-center gap-4">
           <div className="p-4 bg-(--text-clr)/10 rounded-full">
-            <Folder size={48} className="text-gray-400" />
+            <Folder size={48} className="text-(--text-clr)/60" />
           </div>
           <div>
             <h2 className="font-bold text-xl">No Playlists Found</h2>
-            <p className="text-gray-400 text-sm">
+            <p className="text-(--text-clr)/60 text-sm">
               Create a new bookmark to get started.
             </p>
           </div>

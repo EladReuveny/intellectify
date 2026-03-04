@@ -50,7 +50,7 @@ const BookmarkDetails = ({}: BookmarkDetailsProps) => {
       {bookmark?.posts?.length === 0 ? (
         <div className="text-center">
           <h2 className="font-bold text-2xl mb-1">No posts found</h2>
-          <p className="text-gray-400">
+          <p className="text-(--text-clr)/60">
             Add posts to this bookmark to see them here.
           </p>
         </div>

@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import type { User } from "../types/user.types";
 import UserAvatar from "./UserAvatar";
 
-type Props = {
+type UserCardProps = {
   user: User;
 };
 
-const UserCard = ({ user }: Props) => {
+const UserCard = ({ user }: UserCardProps) => {
   return (
     <div
       className="group relative overflow-hidden p-4 rounded-lg border border-(--text-clr)/25
@@ -19,7 +19,7 @@ const UserCard = ({ user }: Props) => {
 
       <div className="text-center mt-2 mb-4">
         <h3 className="font-semibold text-lg mb-1">User #{user.id}</h3>
-        <div className="flex items-center justify-center gap-1 text-gray-400 text-sm mb-2">
+        <div className="flex items-center justify-center gap-1 text-(--text-clr)/60 text-sm mb-2">
           <Mail size={18} />
           <span className="truncate">{user.email}</span>
         </div>
@@ -34,7 +34,7 @@ const UserCard = ({ user }: Props) => {
           {`${user.role[0].toUpperCase()}${user.role.slice(1)}`}
         </span>
 
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-(--text-clr)/60 mt-1">
           Joined {""}
           {new Date(user.createdAt).toLocaleDateString("en-US", {
             year: "numeric",

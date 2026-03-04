@@ -86,7 +86,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
             className="flex items-center gap-2 group"
           >
             <UserAvatar avatarUrl={author?.avatarUrl} size={30} />
-            <span className="text-gray-400 group-hover:text-(--text-clr)">
+            <span className="text-(--text-clr)/60 group-hover:text-(--text-clr)">
               @{author?.email.split("@")[0]}
             </span>
           </Link>
@@ -95,7 +95,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
             onClick={handleToggleFollow}
             className={`px-4 py-1 text-sm rounded-full mt-2 flex items-center gap-2 ${
               isUserFollowingAuthor
-                ? "text-gray-400 border border-gray-400 hover:bg-(--text-clr)/15"
+                ? "text-(--text-clr)/60 border border-(--text-clr)/60 hover:bg-(--text-clr)/15"
                 : "bg-(--text-clr) text-(--bg-clr) hover:brightness-90"
             }`}
           >
@@ -114,7 +114,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
         <div className="flex items-center gap-3">
           <div
             title="Created at"
-            className="flex items-center gap-1 text-sm text-gray-400 hover:text-(--text-clr)"
+            className="flex items-center gap-1 text-sm text-(--text-clr)/60 hover:text-(--text-clr)"
           >
             <Calendar size={20} />
             {post?.createdAt &&
@@ -124,7 +124,7 @@ const PostDetails = ({}: PostsDetailsProps) => {
                 year: "numeric",
               })}
           </div>
-          <div className="flex items-center gap-1 text-sm text-gray-400">
+          <div className="flex items-center gap-1 text-sm text-(--text-clr)/60">
             <button
               type="button"
               onClick={() => toggleLikePostMutation(post?.id!)}

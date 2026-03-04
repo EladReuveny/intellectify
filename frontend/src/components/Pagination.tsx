@@ -17,7 +17,7 @@ const Pagination = ({ pagination }: PaginationProps) => {
 
   const visiblePages = Array.from(
     { length: totalPages },
-    (_, i) => i + 1
+    (_, i) => i + 1,
   ).slice(Math.max(currentPage - 3, 0), Math.min(currentPage + 2, totalPages));
 
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Pagination = ({ pagination }: PaginationProps) => {
 
   return (
     <div className="flex items-center justify-between">
-      <div className="text-sm text-gray-400">
+      <div className="text-sm text-(--text-clr)/60">
         Showing <span className="font-semibold">{firstItem}</span>-
         <span className="font-semibold">{lastItem}</span> of{" "}
         <span className="font-semibold">{totalItems}</span> results
@@ -47,7 +47,7 @@ const Pagination = ({ pagination }: PaginationProps) => {
           type="button"
           onClick={handlePrevPage}
           disabled={isFirstPage}
-          className={`rounded-full border border-gray-400 p-2 hover:bg-(--text-clr)/15 ${
+          className={`rounded-full border border-(--text-clr)/60 p-2 hover:bg-(--text-clr)/15 ${
             isFirstPage ? "cursor-not-allowed opacity-60" : "cursor-pointer"
           }`}
         >
@@ -62,7 +62,7 @@ const Pagination = ({ pagination }: PaginationProps) => {
               ${
                 page === currentPage
                   ? "bg-(--text-clr) text-(--bg-clr) hover:brightness-90"
-                  : "border border-gray-400 hover:bg-(--text-clr)/15"
+                  : "border border-(--text-clr)/60 hover:bg-(--text-clr)/15"
               }`}
           >
             {page}
@@ -73,7 +73,7 @@ const Pagination = ({ pagination }: PaginationProps) => {
           type="button"
           onClick={handleNextPage}
           disabled={isLastPage}
-          className={`rounded-full border border-gray-400 p-2 hover:bg-(--text-clr)/15 ${
+          className={`rounded-full border border-(--text-clr)/60 p-2 hover:bg-(--text-clr)/15 ${
             isLastPage ? "cursor-not-allowed opacity-60" : "cursor-pointer"
           }`}
         >

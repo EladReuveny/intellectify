@@ -50,7 +50,9 @@ const UserPosts = ({}: UserPostsProps) => {
       ) : (
         <div className="text-center">
           <h2 className="font-bold text-2xl mb-1">No posts found</h2>
-          <p className="text-gray-400">Create a new post to get started.</p>
+          <p className="text-(--text-clr)/60">
+            Create a new post to get started.
+          </p>
         </div>
       )}
     </section>

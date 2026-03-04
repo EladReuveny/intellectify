@@ -9,7 +9,7 @@ const Home = ({}: HomeProps) => {
       <h1 className="text-4xl">
         <span className="font-bold">Share your knowledge</span> with the world
       </h1>
-      <p className="text-2xl mt-4 text-gray-400">
+      <p className="text-2xl mt-4 text-(--text-clr)/60">
         <span className="font-bold">Intellctify</span> is a platform that allows
         you read, write and deepen your understanding of various topics.
       </p>

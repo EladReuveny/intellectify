@@ -41,7 +41,7 @@ const UsersManagement = ({}: UsersManagementProps) => {
     <section className="px-2">
       <PageTitle title="Users Management" />
 
-      <p className="text-gray-400 mb-5">
+      <p className="text-(--text-clr)/60 mb-5">
         Manage and view users ({users?.length ?? 0})
       </p>
 
@@ -52,7 +52,7 @@ const UsersManagement = ({}: UsersManagementProps) => {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-4 text-gray-400">
+        <div className="flex flex-col items-center gap-4 text-(--text-clr)/60">
           <UserIcon className="w-16 h-16" />
           <p className="text-lg">No users available yet</p>
         </div>

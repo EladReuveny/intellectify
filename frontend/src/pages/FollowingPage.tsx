@@ -55,7 +55,7 @@ const FollowingPage = ({}: FollowingPageProps) => {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-2 text-gray-400">
+        <div className="flex flex-col items-center gap-2 text-(--text-clr)/60">
           <UserIcon size={44} />
           <p>You are not following any users yet.</p>
         </div>

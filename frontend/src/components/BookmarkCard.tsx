@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { Folder, Trash } from "lucide-react"; 
+import { Folder, Trash } from "lucide-react";
 import type React from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -102,8 +102,8 @@ const BookmarkCard = ({
       <div className="px-2 pb-4">
         <h2 className="font-semibold text-lg mb-1">{bookmark.title}</h2>
 
-        <div className="text-gray-400 text-xs flex items-center justify-between">
-          <div className="text-gray-400 text-xs flex items-center gap-1">
+        <div className="text-(--text-clr)/60 text-xs flex items-center justify-between">
+          <div className="text-(--text-clr)/60 text-xs flex items-center gap-1">
             <span>
               {new Date(bookmark.updatedAt).toLocaleDateString("en-US", {
                 day: "numeric",

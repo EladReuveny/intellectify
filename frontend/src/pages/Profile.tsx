@@ -133,7 +133,7 @@ const Profile = ({}: ProfileProps) => {
         </label>
       </div>
 
-      <div className="border border-gray-400 rounded-md shadow-md p-6 mt-6">
+      <div className="border border-(--text-clr)/60 rounded-md shadow-md p-6 mt-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">User Details</h2>
           {!isEditMode && (
@@ -151,7 +151,7 @@ const Profile = ({}: ProfileProps) => {
           <div className="space-y-4">
             <div className="relative">
               <Mail
-                className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
+                className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
                 size={24}
               />
               <input
@@ -161,7 +161,7 @@ const Profile = ({}: ProfileProps) => {
                 defaultValue={user?.email}
                 disabled={!isEditMode}
                 placeholder=" "
-                className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+                className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
               />
               <label
                 htmlFor="email"
@@ -177,7 +177,7 @@ const Profile = ({}: ProfileProps) => {
               <>
                 <div className="relative">
                   <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
+                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
                     size={24}
                   />
                   <input
@@ -185,7 +185,7 @@ const Profile = ({}: ProfileProps) => {
                     id="currentPassword"
                     name="currentPassword"
                     placeholder=" "
-                    className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
                   />
                   <label
                     htmlFor="currentPassword"
@@ -203,7 +203,7 @@ const Profile = ({}: ProfileProps) => {
                 </div>
                 <div className="relative">
                   <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
+                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
                     size={24}
                   />
                   <input
@@ -211,7 +211,7 @@ const Profile = ({}: ProfileProps) => {
                     id="newPassword"
                     name="newPassword"
                     placeholder=" "
-                    className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
                   />
                   <label
                     htmlFor="newPassword"
@@ -229,7 +229,7 @@ const Profile = ({}: ProfileProps) => {
                 </div>
                 <div className="relative">
                   <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
+                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
                     size={24}
                   />
                   <input
@@ -237,7 +237,7 @@ const Profile = ({}: ProfileProps) => {
                     id="confirmNewPassword"
                     name="confirmNewPassword"
                     placeholder=" "
-                    className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
                   />
                   <label
                     htmlFor="confirmNewPassword"
@@ -264,7 +264,7 @@ const Profile = ({}: ProfileProps) => {
               <button
                 type="reset"
                 onClick={() => setIsEditMode(false)}
-                className="flex items-center gap-2 py-2 px-3 text-gray-400 border border-gray-400 rounded-md hover:bg-(--text-clr)/15"
+                className="flex items-center gap-2 py-2 px-3 text-(--text-clr)/60 border border-(--text-clr)/60 rounded-md hover:bg-(--text-clr)/15"
               >
                 <X size={24} /> Cancel
               </button>
@@ -281,7 +281,7 @@ const Profile = ({}: ProfileProps) => {
 
       <div className="border border-red-500 rounded-md shadow-md p-6 mt-6">
         <h2 className="text-xl font-bold">Delete Account</h2>
-        <p className="text-gray-400 mb-4">
+        <p className="text-(--text-clr)/60 mb-4">
           Are you sure you want to permanently delete your account and all of
           your content?
         </p>

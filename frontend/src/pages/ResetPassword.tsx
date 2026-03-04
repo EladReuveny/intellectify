@@ -52,21 +52,21 @@ const ResetPassword = ({}: ResetPasswordProps) => {
   return (
     <section className="px-2 text-center flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
-      <p className="text-gray-400 mb-2">
+      <p className="text-(--text-clr)/60 mb-2">
         Enter your new password and confirm it to reset your password
       </p>
 
       <form onSubmit={(e) => handleResetPassword(e)} className="w-1/2">
         <div className="space-y-3 mt-4">
           <div className="relative">
-            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
+            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60" />
             <input
               type={isShowNewPassword ? "text" : "password"}
               id="newPassword"
               name="newPassword"
               placeholder=""
               required
-              className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
             />
             <label
               htmlFor="newPassword"
@@ -84,14 +84,14 @@ const ResetPassword = ({}: ResetPasswordProps) => {
           </div>
 
           <div className="relative">
-            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
+            <Lock className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60" />
             <input
               type={isShowNewConfirmPassword ? "text" : "password"}
               id="confirmNewPassword"
               name="confirmNewPassword"
               placeholder=""
               required
-              className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
             />
             <label
               htmlFor="confirmNewPassword"

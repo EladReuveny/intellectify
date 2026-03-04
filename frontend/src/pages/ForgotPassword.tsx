@@ -35,7 +35,7 @@ const ForgotPassword = ({}: ForgotPasswordProps) => {
       {isSubmitted ? (
         <>
           <h1 className="text-3xl font-bold mb-2">Email Sent Successfully</h1>
-          <p className="text-gray-400 mb-2">
+          <p className="text-(--text-clr)/60 mb-2">
             If an account with the provided email exists, a password reset link
             has been sent. Please check your inbox and follow the instructions
             to reset your password.
@@ -44,27 +44,27 @@ const ForgotPassword = ({}: ForgotPasswordProps) => {
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Forgot Password</h1>
-          <p className="text-gray-400 mb-2">
+          <p className="text-(--text-clr)/60 mb-2">
             Enter your email to reset your password
           </p>
 
           <form onSubmit={(e) => handleForgotPassword(e)} className="w-1/2">
             <Link
               to="/"
-              className="text-sm text-gray-400 mb-2 flex items-center gap-1 hover:text-(--text-clr)"
+              className="text-sm text-(--text-clr)/60 mb-2 flex items-center gap-1 hover:text-(--text-clr)"
             >
               <ArrowLeft /> Go Back
             </Link>
 
             <div className="relative">
-              <Mail className="absolute top-1/2 left-2 -translate-y-1/2 text-gray-400" />
+              <Mail className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60" />
               <input
                 type="email"
                 id="email"
                 name="email"
                 placeholder=""
                 required
-                className="peer border border-gray-400 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
+                className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
               />
               <label
                 htmlFor="email"

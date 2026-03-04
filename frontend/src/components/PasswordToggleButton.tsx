@@ -14,7 +14,7 @@ const PasswordToggleButton = ({
       type="button"
       title={isVisible ? "Hide" : "Show"}
       onClick={onToggle}
-      className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-(--text-clr)"
+      className="absolute top-1/2 right-2 -translate-y-1/2 text-(--text-clr)/60 hover:text-(--text-clr)"
     >
       {isVisible ? <EyeOff /> : <Eye />}
     </button>

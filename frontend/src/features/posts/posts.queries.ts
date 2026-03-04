@@ -21,7 +21,7 @@ export const useFindAllPosts = (postQueryDto: PostsQueryDto) =>
     queryFn: () => findAllPosts(postQueryDto),
   });
 
-export const useFetchAllPostComments = (postId: number) =>
+export const useFetchAllRootComments = (postId: number) =>
   useQuery({
     queryKey: postsKeys.comments(postId),
     queryFn: () => findAllRootComments(postId),

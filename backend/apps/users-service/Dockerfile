@@ -14,4 +14,4 @@ RUN npm run build
 
 EXPOSE 3002
 
-CMD ["npm", "run", "start:users:dev"]
+CMD ["npm", "run", "start:users:prod"]

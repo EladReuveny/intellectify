@@ -140,7 +140,7 @@ const UserStats = ({}: UserStatsProps) => {
     <section className="px-2">
       <PageTitle title="Stats" />
 
-      <p className="text-gray-400">
+      <p className="text-(--text-clr)/60">
         Track your activity and engagement across the platform
       </p>
 
@@ -152,7 +152,7 @@ const UserStats = ({}: UserStatsProps) => {
         <div>
           <h2 className="text-2xl font-bold">{user?.email}</h2>
 
-          <p className="text-gray-400">
+          <p className="text-(--text-clr)/60">
             Member since{" "}
             {user?.createdAt &&
               new Date(user?.createdAt).toLocaleDateString("en-US", {
@@ -191,16 +191,14 @@ const UserStats = ({}: UserStatsProps) => {
                 key={post.id}
                 className="p-3 rounded-md block bg-(--text-clr)/20 hover:bg-(--text-clr)/30"
               >
-                <p className="font-medium text-gray-900 dark:text-white truncate">
-                  {post.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="font-medium truncate">{post.title}</p>
+                <p className="text-xs text-(--text-clr)/65 mt-1">
                   {post.comments?.length || 0} comments
                 </p>
               </Link>
             ))
           ) : (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-(--text-clr)/65 py-8">
               You haven't created any posts yet
             </p>
           )}
@@ -223,10 +221,8 @@ const UserStats = ({}: UserStatsProps) => {
                 key={bookmark.id}
                 className="p-3 rounded-md block bg-(--text-clr)/20 hover:bg-(--text-clr)/30"
               >
-                <p className="font-medium text-gray-900 dark:text-white truncate">
-                  {bookmark.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="font-medium truncate">{bookmark.title}</p>
+                <p className="text-xs text-(--text-clr)/65 mt-1">
                   Last updated at{" "}
                   {new Date(bookmark.updatedAt).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -237,7 +233,7 @@ const UserStats = ({}: UserStatsProps) => {
               </Link>
             ))
           ) : (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-(--text-clr)/65 py-8">
               You haven't created any bookmarks yet
             </p>
           )}

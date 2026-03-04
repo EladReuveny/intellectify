@@ -124,8 +124,8 @@ const CommentCard = ({
             >
               @{comment.user.email.split("@")[0]}
             </Link>
-            <span className="text-gray-400">•</span>
-            <span className="text-gray-400 text-sm">
+            <span className="text-(--text-clr)/60">•</span>
+            <span className="text-(--text-clr)/60 text-sm">
               {new Date(comment.createdAt).toLocaleDateString("en-US", {
                 day: "numeric",
                 month: "short",
@@ -136,7 +136,7 @@ const CommentCard = ({
 
           <p>{comment.content}</p>
 
-          <div className="flex items-center gap-4 text-gray-400 mt-2 text-sm">
+          <div className="flex items-center gap-4 text-(--text-clr)/60 mt-2 text-sm">
             <div className="flex items-start gap-1">
               <button type="button" onClick={handleToggleLikeComment}>
                 <ThumbsUp
@@ -167,14 +167,14 @@ const CommentCard = ({
                 name="commentReply"
                 id="commentReply"
                 placeholder="Reply here..."
-                className="outline-none resize-y mb-1 p-2 w-full border border-gray-400 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
+                className="outline-none resize-y mb-1 p-2 w-full border border-(--text-clr)/60 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
               ></textarea>
 
               <div className="flex items-center gap-3 mt-2">
                 <button
                   type="reset"
                   onClick={() => setShowReplyBox(false)}
-                  className="flex items-center gap-2 py-2 px-3 text-gray-400 border border-gray-400 rounded-md hover:bg-(--text-clr)/15"
+                  className="flex items-center gap-2 py-2 px-3 text-(--text-clr)/60 border border-(--text-clr)/60 rounded-md hover:bg-(--text-clr)/15"
                 >
                   <X size={24} /> Cancel
                 </button>
@@ -193,7 +193,7 @@ const CommentCard = ({
               open={showCommentReplies}
               onToggle={(e) => setShowCommentReplies(e.currentTarget.open)}
             >
-              <summary className="flex items-center gap-1 mt-1 text-sm cursor-pointer text-gray-400 hover:text-(--text-clr)">
+              <summary className="flex items-center gap-1 mt-1 text-sm cursor-pointer text-(--text-clr)/60 hover:text-(--text-clr)">
                 <span>
                   {showCommentReplies
                     ? `Hide replies`

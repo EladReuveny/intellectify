@@ -73,7 +73,7 @@ const ConfirmationDialog = ({
         <button
           type="button"
           onClick={closeDialog}
-          className="flex items-center gap-2 py-2 px-3 border border-gray-400 rounded-md hover:bg-(--text-clr)/10"
+          className="flex items-center gap-2 py-2 px-3 border border-(--text-clr)/60 rounded-md hover:bg-(--text-clr)/10"
         >
           <X size={24} /> {cancelText}
         </button>
