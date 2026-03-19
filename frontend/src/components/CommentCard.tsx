@@ -1,7 +1,9 @@
+import { useForm } from "@tanstack/react-form";
 import { ChevronDown, Reply, Send, ThumbsUp, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import z from "zod";
 import {
   useCreatePostComment,
   useToggleLikeComment,
@@ -13,6 +15,10 @@ import { handleError } from "../utils/utils";
 import CommentsList from "./CommentsList";
 import Spinner from "./Spinner";
 import UserAvatar from "./UserAvatar";
+
+const replyCommentSchema = z.object({
+  commentReply: z.string(),
+});
 
 type CommentCardProps = {
   comment: PostComment & {
@@ -67,35 +73,32 @@ const CommentCard = ({
 
   const isUserLikedComment = comment.likes?.some((l) => l.userId === user?.id);
 
-  const handleSubmitReply = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!user) {
-      toast.info("Please sign in first to reply a comment");
-      navigate("/login");
-      return;
-    }
-
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    createPostCommentMutation(
-      {
-        postId: postId,
-        createPostCommentDto: {
-          content: formData.get("commentReply") as string,
-          commentParentId: comment.id,
+  const form = useForm({
+    defaultValues: {
+      commentReply: "",
+    },
+    validators: {
+      onChange: replyCommentSchema,
+      onSubmit: replyCommentSchema,
+    },
+    onSubmit: async ({ value }) =>
+      createPostCommentMutation(
+        {
+          postId,
+          createPostCommentDto: {
+            content: value.commentReply,
+            commentParentId: comment.id,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Reply submitted successfully!");
-          setShowReplyBox(false);
-          setShowCommentReplies(true);
+        {
+          onSuccess: () => {
+            toast.success("Reply submitted successfully!");
+            setShowReplyBox(false);
+            setShowCommentReplies(true);
+          },
         },
-      },
-    );
-  };
+      ),
+  });
 
   if (isCommentRepliesError) {
     handleError(commentRepliesError);
@@ -162,13 +165,36 @@ const CommentCard = ({
           </div>
 
           {showReplyBox && (
-            <form onSubmit={(e) => handleSubmitReply(e)} className="mt-2">
-              <textarea
-                name="commentReply"
-                id="commentReply"
-                placeholder="Reply here..."
-                className="outline-none resize-y mb-1 p-2 w-full border border-(--text-clr)/60 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
-              ></textarea>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="mt-2"
+            >
+              <form.Field name="commentReply">
+                {(field) => (
+                  <div className="flex flex-col gap-1">
+                    <textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder="Reply here..."
+                      className="outline-none resize-y mb-1 p-2 w-full border border-(--text-clr)/60 rounded hover:border-(--text-clr) focus:border-(--text-clr)"
+                    ></textarea>
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <em className="text-red-500 text-sm text-left">
+                          {field.state.meta.errors
+                            .map((err) => err?.message)
+                            .join(", ")}
+                        </em>
+                      )}
+                  </div>
+                )}
+              </form.Field>
 
               <div className="flex items-center gap-3 mt-2">
                 <button
@@ -178,12 +204,19 @@ const CommentCard = ({
                 >
                   <X size={24} /> Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90"
+                <form.Subscribe
+                  selector={(state) => [state.canSubmit, state.isSubmitting]}
                 >
-                  <Send size={24} /> Reply
-                </button>
+                  {([canSubmit, isSubmitting]) => (
+                    <button
+                      type="submit"
+                      disabled={!canSubmit || isSubmitting}
+                      className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send size={24} /> Reply
+                    </button>
+                  )}
+                </form.Subscribe>
               </div>
             </form>
           )}

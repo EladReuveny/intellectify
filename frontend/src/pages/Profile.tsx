@@ -1,9 +1,11 @@
+import { useForm } from "@tanstack/react-form";
 import { Camera, Check, Edit, Lock, Mail, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import z from "zod";
 import ErrorFallback from "../components/ErrorFallback";
-import PasswordToggleButton from "../components/PasswordToggleButton";
+import FormInputField from "../components/FormInputField";
 import Spinner from "../components/Spinner";
 import UserAvatar from "../components/UserAvatar";
 import {
@@ -13,6 +15,31 @@ import {
 import { useGetUser } from "../features/users/users.queries";
 import { useAuth } from "../hooks/useAuth.hook";
 import { handleError } from "../utils/utils";
+
+const updateUserSchema = z.object({
+  email: z.email("Invalid email address"),
+  currentPassword: z
+    .string()
+    .min(5, "Password must be at least 5 characters long")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+    ),
+  newPassword: z
+    .string()
+    .min(5, "Password must be at least 5 characters long")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+    ),
+  confirmNewPassword: z
+    .string()
+    .min(5, "Password must be at least 5 characters long")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+    ),
+});
 
 type ProfileProps = {};
 
@@ -36,10 +63,6 @@ const Profile = ({}: ProfileProps) => {
   const { mutate: deleteAccountMutation } = useDeleteAccount();
 
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isShowCurrentPassword, setIsShowCurrentPassword] = useState(false);
-  const [isShowNewPassword, setIsShowNewPassword] = useState(false);
-  const [isShowConfirmNewPassword, setIsShowConfirmNewPassword] =
-    useState(false);
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl);
 
   const handleUserAvatarUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,30 +87,31 @@ const Profile = ({}: ProfileProps) => {
     }
   };
 
-  const handleUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!user || !user?.id) return;
-
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const email = formData.get("email") as string;
-    const currentPassword = formData.get("currentPassword") as string;
-    const newPassword = formData.get("newPassword") as string;
-    const confirmNewPassword = formData.get("confirmNewPassword") as string;
-
-    updateUserMutation({
-      userId: user.id,
-      updateUserDto: {
-        email,
-        currentPassword,
-        newPassword,
-        confirmNewPassword,
-        avatarUrl,
-      },
-    });
-  };
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    },
+    validators: {
+      onChange: updateUserSchema,
+      onSubmit: updateUserSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (!user || !user?.id) return;
+      updateUserMutation({
+        userId: user.id,
+        updateUserDto: {
+          email: value.email,
+          currentPassword: value.currentPassword,
+          newPassword: value.newPassword,
+          confirmNewPassword: value.confirmNewPassword,
+          avatarUrl,
+        },
+      });
+    },
+  });
 
   const handleDeleteAccount = async () => {
     const answer = confirm("Are you sure you want to delete your account?");
@@ -147,114 +171,55 @@ const Profile = ({}: ProfileProps) => {
           )}
         </div>
 
-        <form onSubmit={handleUpdateUser}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
           <div className="space-y-4">
-            <div className="relative">
-              <Mail
-                className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-                size={24}
-              />
-              <input
-                type="email"
-                id="email"
-                name="email"
-                defaultValue={user?.email}
-                disabled={!isEditMode}
-                placeholder=" "
-                className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-              />
-              <label
-                htmlFor="email"
-                className="absolute top-1/2 left-9 -translate-y-1/2
-              peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-              peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-              >
-                Email Address
-              </label>
-            </div>
+            <form.Field name="email">
+              {(field) => (
+                <FormInputField
+                  field={field}
+                  type="email"
+                  label="Email"
+                  Icon={Mail}
+                />
+              )}
+            </form.Field>
             {isEditMode && (
               <>
-                <div className="relative">
-                  <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-                    size={24}
-                  />
-                  <input
-                    type={isShowCurrentPassword ? "text" : "password"}
-                    id="currentPassword"
-                    name="currentPassword"
-                    placeholder=" "
-                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-                  />
-                  <label
-                    htmlFor="currentPassword"
-                    className="absolute top-1/2 left-9 -translate-y-1/2
-              peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-              peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-                  >
-                    Current Password
-                  </label>
-                  <PasswordToggleButton
-                    isVisible={isShowCurrentPassword}
-                    onToggle={() => setIsShowCurrentPassword((prev) => !prev)}
-                  />
-                </div>
-                <div className="relative">
-                  <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-                    size={24}
-                  />
-                  <input
-                    type={isShowNewPassword ? "text" : "password"}
-                    id="newPassword"
-                    name="newPassword"
-                    placeholder=" "
-                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-                  />
-                  <label
-                    htmlFor="newPassword"
-                    className="absolute top-1/2 left-9 -translate-y-1/2
-              peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-              peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-                  >
-                    New Password
-                  </label>
-                  <PasswordToggleButton
-                    isVisible={isShowNewPassword}
-                    onToggle={() => setIsShowNewPassword((prev) => !prev)}
-                  />
-                </div>
-                <div className="relative">
-                  <Lock
-                    className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-                    size={24}
-                  />
-                  <input
-                    type={isShowConfirmNewPassword ? "text" : "password"}
-                    id="confirmNewPassword"
-                    name="confirmNewPassword"
-                    placeholder=" "
-                    className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-                  />
-                  <label
-                    htmlFor="confirmNewPassword"
-                    className="absolute top-1/2 left-9 -translate-y-1/2
-              peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-              peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-                  >
-                    Confirm New Password
-                  </label>
-                  <PasswordToggleButton
-                    isVisible={isShowConfirmNewPassword}
-                    onToggle={() =>
-                      setIsShowConfirmNewPassword((prev) => !prev)
-                    }
-                  />
-                </div>
+                <form.Field name="currentPassword">
+                  {(field) => (
+                    <FormInputField
+                      field={field}
+                      type="password"
+                      label="Current Password"
+                      Icon={Lock}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="newPassword">
+                  {(field) => (
+                    <FormInputField
+                      field={field}
+                      type="password"
+                      label="New Password"
+                      Icon={Lock}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="confirmNewPassword">
+                  {(field) => (
+                    <FormInputField
+                      field={field}
+                      type="password"
+                      label="Confirm New Password"
+                      Icon={Lock}
+                    />
+                  )}
+                </form.Field>
               </>
             )}
           </div>
@@ -268,12 +233,19 @@ const Profile = ({}: ProfileProps) => {
               >
                 <X size={24} /> Cancel
               </button>
-              <button
-                type="submit"
-                className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90"
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting]}
               >
-                <Check size={24} /> Save Changes
-              </button>
+                {([canSubmit, isSubmitting]) => (
+                  <button
+                    type="submit"
+                    disabled={!canSubmit || isSubmitting}
+                    className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Check size={24} /> Save Changes
+                  </button>
+                )}
+              </form.Subscribe>
             </div>
           )}
         </form>

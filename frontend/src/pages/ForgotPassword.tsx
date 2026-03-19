@@ -1,8 +1,15 @@
+import { useForm } from "@tanstack/react-form";
 import { ArrowLeft, Mail, Send } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import z from "zod";
+import FormInputField from "../components/FormInputField";
 import { useForgotPassword } from "../features/auth/auth.mutations";
+
+const forgotPasswordSchema = z.object({
+  email: z.email("Invalid email address"),
+});
 
 type ForgotPasswordProps = {};
 
@@ -11,24 +18,22 @@ const ForgotPassword = ({}: ForgotPasswordProps) => {
 
   const { mutate: forgotPasswordMutation } = useForgotPassword();
 
-  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const email = formData.get("email") as string;
-
-    forgotPasswordMutation(
-      { email },
-      {
+  const form = useForm({
+    defaultValues: {
+      email: "",
+    },
+    validators: {
+      onChange: forgotPasswordSchema,
+      onSubmit: forgotPasswordSchema,
+    },
+    onSubmit: ({ value }) =>
+      forgotPasswordMutation(value, {
         onSuccess: () => {
           toast.success("Email sent successfully");
           setIsSubmitted(true);
         },
-      },
-    );
-  };
+      }),
+  });
 
   return (
     <section className="px-2 text-center flex flex-col items-center justify-center">
@@ -48,7 +53,13 @@ const ForgotPassword = ({}: ForgotPasswordProps) => {
             Enter your email to reset your password
           </p>
 
-          <form onSubmit={(e) => handleForgotPassword(e)} className="w-1/2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="w-1/2"
+          >
             <Link
               to="/"
               className="text-sm text-(--text-clr)/60 mb-2 flex items-center gap-1 hover:text-(--text-clr)"
@@ -56,34 +67,31 @@ const ForgotPassword = ({}: ForgotPasswordProps) => {
               <ArrowLeft /> Go Back
             </Link>
 
-            <div className="relative">
-              <Mail className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60" />
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder=""
-                required
-                className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-              />
-              <label
-                htmlFor="email"
-                className="absolute top-1/2 left-9 -translate-y-1/2 
-            peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-            peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-              >
-                Email
-              </label>
-            </div>
+            <form.Field name="email">
+              {(field) => (
+                <FormInputField
+                  field={field}
+                  type="email"
+                  label="Email"
+                  Icon={Mail}
+                />
+              )}
+            </form.Field>
 
-            <button
-              type="submit"
-              className="mt-4 bg-(--text-clr) text-(--bg-clr) py-2 rounded-md w-full flex items-center justify-center gap-2 text-xl hover:brightness-90"
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
             >
-              <Send size={28} />
-              Send Reset Link
-            </button>
+              {([canSubmit, isSubmitting]) => (
+                <button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  className="mt-4 bg-(--text-clr) text-(--bg-clr) py-2 rounded-md w-full flex items-center justify-center gap-2 text-xl hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send size={28} />
+                  Send Reset Link
+                </button>
+              )}
+            </form.Subscribe>
           </form>
         </>
       )}

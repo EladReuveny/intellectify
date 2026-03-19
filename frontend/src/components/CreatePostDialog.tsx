@@ -1,12 +1,20 @@
+import { useForm } from "@tanstack/react-form";
 import { FileText, Image, SquarePen, Type, X } from "lucide-react";
 import { useState, type RefObject } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import z from "zod";
 import { useCreatePost } from "../features/posts/posts.mutations";
 import { useAuth } from "../hooks/useAuth.hook";
 import type { Post } from "../types/post.types";
 import ContentEditor from "./ContentEditor";
 import Dialog from "./Dialog";
+import FormInputField from "./FormInputField";
+
+const createPostSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  imageUrl: z.url("Invalid image URL"),
+});
 
 type CreatePostDialogProps = {
   dialogRef: RefObject<HTMLDialogElement | null>;
@@ -26,66 +34,60 @@ const CreatePostDialog = ({ dialogRef }: CreatePostDialogProps) => {
 
   const { mutate: createPostMutation } = useCreatePost();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm({
+    defaultValues: {
+      title: "",
+      imageUrl: "",
+    },
+    validators: {
+      onChange: createPostSchema,
+      onSubmit: createPostSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const doc = new DOMParser().parseFromString(content, "text/html");
+      const plainTextContent = doc.body.textContent || "";
 
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const title = formData.get("title") as string;
-    const imageUrl = formData.get("imageUrl") as string;
-
-    const doc = new DOMParser().parseFromString(content, "text/html");
-    const plainTextContent = doc.body.textContent || "";
-
-    createPostMutation(
-      {
-        title,
-        content: plainTextContent,
-        imageUrl,
-        authorId: user?.id!,
-      },
-      {
-        onSuccess: (data: Post) => {
-          toast.success("Post created successfully!");
-          navigate(`/posts/${data.id}`);
-          form.reset();
-          setContent("");
+      createPostMutation(
+        {
+          title: value.title,
+          content: plainTextContent,
+          imageUrl: value.imageUrl,
+          authorId: user?.id!,
         },
-        onSettled: () => {
-          closeDialogRef();
+        {
+          onSuccess: (data: Post) => {
+            toast.success("Post created successfully!");
+            navigate(`/posts/${data.id}`);
+            form.reset();
+            setContent("");
+          },
+          onSettled: () => {
+            closeDialogRef();
+          },
         },
-      },
-    );
-  };
+      );
+    },
+  });
 
   return (
     <Dialog dialogRef={dialogRef} title="Create Post">
-      <form onSubmit={(e) => handleSubmit(e)}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
         <div className="space-y-3">
-          <div className="relative">
-            <Type
-              size={22}
-              className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-            />
-            <input
-              type="text"
-              id="title"
-              name="title"
-              placeholder=""
-              required
-              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-            />
-            <label
-              htmlFor="title"
-              className="absolute top-1/2 left-9 -translate-y-1/2 
-            peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-            peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-            >
-              Title
-            </label>
-          </div>
+          <form.Field name="title">
+            {(field) => (
+              <FormInputField
+                field={field}
+                type="text"
+                label="Title"
+                Icon={Type}
+              />
+            )}
+          </form.Field>
 
           <div>
             <div className="flex items-center gap-2">
@@ -96,28 +98,16 @@ const CreatePostDialog = ({ dialogRef }: CreatePostDialogProps) => {
             <ContentEditor value={content} onChange={setContent} />
           </div>
 
-          <div className="relative">
-            <Image
-              size={22}
-              className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-            />
-            <input
-              type="url"
-              id="imageUrl"
-              name="imageUrl"
-              placeholder=""
-              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-            />
-            <label
-              htmlFor="imageUrl"
-              className="absolute top-1/2 left-9 -translate-y-1/2 
-            peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-            peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-            >
-              Image Url *
-            </label>
-          </div>
+          <form.Field name="imageUrl">
+            {(field) => (
+              <FormInputField
+                field={field}
+                type="url"
+                label="Image URL"
+                Icon={Image}
+              />
+            )}
+          </form.Field>
         </div>
 
         <div className="flex items-center justify-end gap-3 mt-5">
@@ -131,12 +121,19 @@ const CreatePostDialog = ({ dialogRef }: CreatePostDialogProps) => {
           >
             <X size={24} /> Cancel
           </button>
-          <button
-            type="submit"
-            className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90"
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
           >
-            <SquarePen size={24} /> Post
-          </button>
+            {([canSubmit, isSubmitting]) => (
+              <button
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <SquarePen size={24} /> Post
+              </button>
+            )}
+          </form.Subscribe>
         </div>
       </form>
     </Dialog>

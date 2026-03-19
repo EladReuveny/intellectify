@@ -1,7 +1,14 @@
+import { useForm } from "@tanstack/react-form";
 import { SquarePen, Type, X } from "lucide-react";
 import React from "react";
+import z from "zod";
 import { useCreateBookmark } from "../features/bookmarks/bookmarks.mutations";
 import Dialog from "./Dialog";
+import FormInputField from "./FormInputField";
+
+const createBookmarkSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+});
 
 type CreateBookmarkDialogProps = {
   dialogRef: React.RefObject<HTMLDialogElement | null>;
@@ -14,52 +21,42 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
     dialogRef.current?.close();
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const title = formData.get("title") as string;
-
-    createBookmarkMutation(
-      { title },
-      {
+  const form = useForm({
+    defaultValues: {
+      title: "",
+    },
+    validators: {
+      onChange: createBookmarkSchema,
+      onSubmit: createBookmarkSchema,
+    },
+    onSubmit: async ({ value }) =>
+      createBookmarkMutation(value, {
         onSuccess: () => {
           closeDialog();
           form.reset();
         },
-      },
-    );
-  };
+      }),
+  });
 
   return (
     <Dialog dialogRef={dialogRef} title="Create Bookmark">
-      <form onSubmit={(e) => handleSubmit(e)}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
         <div className="space-y-3">
-          <div className="relative">
-            <Type
-              size={22}
-              className="absolute top-1/2 left-2 -translate-y-1/2 text-(--text-clr)/60"
-            />
-            <input
-              type="text"
-              id="title"
-              name="title"
-              placeholder=""
-              required
-              className="peer border border-(--text-clr)/60 py-2 px-9 w-full rounded-md hover:border-(--text-clr) focus:border-(--text-clr) focus:shadow-[0_0_15px_var(--text-clr)]"
-            />
-            <label
-              htmlFor="title"
-              className="absolute top-1/2 left-9 -translate-y-1/2 
-            peer-focus:text-xs peer-focus:top-0 peer-focus:left-4 peer-focus:bg-(--bg-clr) peer-focus:px-1
-            peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:left-4 peer-[:not(:placeholder-shown)]:text-xs
-            peer-[:not(:placeholder-shown)]:bg-(--bg-clr) peer-[:not(:placeholder-shown)]:px-1"
-            >
-              Title
-            </label>
-          </div>
+          <form.Field name="title">
+            {(field) => (
+              <FormInputField
+                field={field}
+                type="text"
+                label="Title"
+                Icon={Type}
+              />
+            )}
+          </form.Field>
         </div>
 
         <div className="flex items-center justify-end gap-3 mt-5">
@@ -70,12 +67,19 @@ const CreateBookmarkDialog = ({ dialogRef }: CreateBookmarkDialogProps) => {
           >
             <X size={24} /> Cancel
           </button>
-          <button
-            type="submit"
-            className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90"
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
           >
-            <SquarePen size={24} /> Create
-          </button>
+            {([canSubmit, isSubmitting]) => (
+              <button
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className="flex items-center gap-2 py-2 px-4 bg-(--text-clr) text-(--bg-clr) rounded-md hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <SquarePen size={24} /> Create
+              </button>
+            )}
+          </form.Subscribe>
         </div>
       </form>
     </Dialog>

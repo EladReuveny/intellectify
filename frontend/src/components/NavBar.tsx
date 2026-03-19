@@ -27,7 +27,9 @@ import Spinner from "./Spinner";
 import ToggleSwitch from "./ToggleSwitch";
 import UserAvatar from "./UserAvatar";
 
-const NavBar = () => {
+type NavBarProps = {};
+
+const NavBar = ({}: NavBarProps) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const [theme, setTheme] = useAtom(themeAtom);

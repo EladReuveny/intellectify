@@ -90,18 +90,38 @@ A modern React + TypeScript + Vite frontend application providing an interactive
 
 <h3>Frontend Technologies</h3>
 
-| Technology          | Purpose                      |
-| ------------------- | ---------------------------- |
-| **React 18**        | UI Framework                 |
-| **TypeScript**      | Type-safe development        |
-| **Vite**            | Fast build tool & dev server |
-| **Tailwind CSS**    | Utility-first styling        |
-| **React Router v6** | Client-side routing          |
-| **Jotai**           | Lightweight state management |
-| **Axios**           | HTTP client for API calls    |
-| **Lucide React**    | Icon library                 |
-| **React Toastify**  | Notifications                |
-| **ESLint**          | Code quality & linting       |
+| Technology               | Purpose                            |
+| ------------------------ | ---------------------------------- |
+| **React 18**             | UI Framework                       |
+| **TypeScript**           | Type-safe development              |
+| **Vite**                 | Fast build tool & dev server       |
+| **Tailwind CSS**         | Utility-first styling              |
+| **React Router v6**      | Client-side routing                |
+| **Jotai**                | Lightweight state management       |
+| **TanStack React Query** | Data fetching & caching            |
+| **TanStack Form**        | Form state management & validation |
+| **Zod**                  | Schema validation library          |
+
+<h3>Data Fetching with TanStack React Query</h3>
+
+The app uses **TanStack React Query** (`@tanstack/react-query`) to manage server state, cache API responses, and handle loading/error patterns. Typical usage includes `useQuery` for reading resources and `useMutation` for updates (posts, bookmarks, likes, user data).
+
+- Automatic caching and stale data handling
+- Background refetching and retry logic
+- Simple mutation hooks with optimistic update support
+- Works well with the custom hooks in `src/features/**` and API layer
+
+<h3>Form Handling & Validation</h3>
+
+The frontend uses **TanStack Form** for robust form state management and **Zod** for schema-based validation. This combination provides:
+
+- Type-safe form handling with TypeScript
+- Declarative validation schemas
+- Real-time field validation
+- Error handling and user feedback
+- Reusable form components (e.g., `FormInputField`)
+
+Example usage in components like `Login.tsx`, `Register.tsx`, and `ForgotPassword.tsx`.
 
 ---
 
@@ -188,14 +208,14 @@ Intellectify uses two communication patterns:
 
 <h2 id="tech-stack">🛠 Tech Stack</h2>
 
-| Category                  | Technologies                                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------------------------------- |
-| **Frontend**              | React 18, TypeScript, Vite, Tailwind CSS, React Router v6, Jotai, Axios, Lucide React, React Toastify |
-| **Backend**               | NestJS, TypeScript, PostgreSQL, TypeORM, JWT Authentication                                           |
-| **Architecture**          | Microservices Architecture, API Gateway Pattern, RESTful APIs                                         |
-| **Containerization**      | Docker, Docker Compose                                                                                |
-| **State & Communication** | Jotai (state management), Axios (HTTP client), JWT (authentication flow)                              |
-| **Development Tools**     | ESLint, Jest, Postman, Git, npm                                                                       |
+| Category                  | Technologies                                                                                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**              | React 18, TypeScript, Vite, Tailwind CSS, React Router v6, Jotai, Axios, Lucide React, React Toastify, TanStack React Query, TanStack Form, Zod |
+| **Backend**               | NestJS, TypeScript, PostgreSQL, TypeORM, JWT Authentication                                                                                     |
+| **Architecture**          | Microservices Architecture, API Gateway Pattern, RESTful APIs                                                                                   |
+| **Containerization**      | Docker, Docker Compose                                                                                                                          |
+| **State & Communication** | Jotai (state management), Axios (HTTP client), JWT (authentication flow)                                                                        |
+| **Development Tools**     | ESLint, Jest, Postman, Git, npm                                                                                                                 |
 
 ---
 
